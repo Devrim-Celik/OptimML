@@ -24,8 +24,8 @@ class Net(nn.Module):
         x = F.selu(self.fc1(x))
         x = self.fc2(x)
         return F.log_softmax(x)
-    
-    
+
+
 def count_parameters(model):
     table = PrettyTable(["Modules", "Parameters"])
     total_params = 0

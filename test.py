@@ -27,9 +27,9 @@ optimizer = optim.Adam(network.parameters(), lr=learning_rate)
 if not os.path.exists('./results'):
         os.makedirs('./results')
 
-# Count and display number of parameters       
+# Count and display number of parameters
 count_parameters(network)
-        
+
 # Train the network
 train_losses = []
 train_counter = []
@@ -51,10 +51,10 @@ def train(epoch):
             train_losses.append(loss.item())
             train_counter.append(
                 (batch_idx*64) + ((epoch-1)*len(train_loader.dataset)))
-            # Save the model 
+            # Save the model
             torch.save(network.state_dict(), './results' + f'/{network.__class__.__name__}.ckpt')
-                      
-            
+
+
 def test():
     network.eval()
     test_loss = 0
@@ -71,7 +71,7 @@ def test():
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
-# test the model before training    
+# test the model before training
 test()
 # train and test it
 for epoch in range(1, n_epochs + 1):
