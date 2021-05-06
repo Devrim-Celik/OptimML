@@ -2,6 +2,7 @@ import abc
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
+from typing import List
 
 
 class Topology(abc.ABC):
@@ -91,6 +92,7 @@ class FullyConnectedGraph(Topology):
     def _create_graph(self):
         return nx.complete_graph(self.nodes)
 
+
 class BinomialGraph(Topology):
     def __init__(self, nodes, probability):
         """
@@ -112,6 +114,7 @@ class RingOfCliques(Topology):
         self.num_cliques = num_cliques
         self.clique_size = clique_size
         super().__init__()
+
     def _create_graph(self):
         return nx.generators.community.ring_of_cliques(self.num_cliques, self.clique_size)
 
@@ -120,15 +123,17 @@ class CirculantGraph(Topology):
     """
     Generates the circulant graph Ci_n(x_1,x_2,...,x_m) with n vertices.
     """
-    def __init__(self, n, offset):
+    def __init__(self, n, offset: List[int]):
         """
         Initialise the graph with n (int), offset (list)
         """
         self.n = n
         self.offset = offset
         super().__init__()
+
     def _create_graph(self):
         return nx.generators.classic.circulant_graph(self.n, self.offset)
+
 
 class CycleGraph(Topology):
     def __init__(self, n):
@@ -137,14 +142,17 @@ class CycleGraph(Topology):
         """
         self.n = n
         super().__init__()
+
     def _create_graph(self):
         return nx.cycle_graph(self.n)
+
 
 if __name__ == '__main__':
     graph = CycleGraph(10)
     a = graph.n_nodes
     b = graph.adj()
     c = graph.visualize_graph()
+    f = graph.plot_degree_distribution()
     c
 
     # graph = nx.cycle_graph(10)
