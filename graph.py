@@ -91,13 +91,62 @@ class FullyConnectedGraph(Topology):
     def _create_graph(self):
         return nx.complete_graph(self.nodes)
 
+class BinomialGraph(Topology):
+    def __init__(self, nodes, probability):
+        """
+        Initialise the graph with nodes (int), probability (float [0,1])
+        """
+        self.nodes = nodes
+        self.probability = probability
+        super().__init__()
+
+    def _create_graph(self):
+        return nx.binomial_graph(self.nodes, self.probability)
+
+
+class RingOfCliques(Topology):
+    """
+    A ring of cliques graph is consisting of cliques, connected through single links. Each clique is a complete graph.
+    """
+    def __init__(self, num_cliques, clique_size):
+        self.num_cliques = num_cliques
+        self.clique_size = clique_size
+        super().__init__()
+    def _create_graph(self):
+        return nx.generators.community.ring_of_cliques(self.num_cliques, self.clique_size)
+
+
+class CirculantGraph(Topology):
+    """
+    Generates the circulant graph Ci_n(x_1,x_2,...,x_m) with n vertices.
+    """
+    def __init__(self, n, offset):
+        """
+        Initialise the graph with n (int), offset (list)
+        """
+        self.n = n
+        self.offset = offset
+        super().__init__()
+    def _create_graph(self):
+        return nx.generators.classic.circulant_graph(self.n, self.offset)
+
+class CycleGraph(Topology):
+    def __init__(self, n):
+        """
+        Initialise the graph with n (int), offset (list)
+        """
+        self.n = n
+        super().__init__()
+    def _create_graph(self):
+        return nx.cycle_graph(self.n)
 
 if __name__ == '__main__':
-    graph = FullyConnectedGraph(10)
+    graph = CycleGraph(10)
     a = graph.n_nodes
     b = graph.adj()
     c = graph.visualize_graph()
-    a
+    c
+
     # graph = nx.cycle_graph(10)
     # graph2 = nx.ring_of_cliques(10, 4)
     # graph3 = nx.binomial_graph(10, .2, seed=1)
