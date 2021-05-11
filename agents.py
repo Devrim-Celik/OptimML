@@ -10,6 +10,8 @@ class Agent():
             name:str,
             training_samples: torch.Tensor,
             training_labels: torch.Tensor,
+            test_samples: torch.Tensor,
+            test_labels: torch.Tensor,
             neighbours: List[str],
             optimizer: torch.optim.Optimizer,
             learning_rate: float,
@@ -18,7 +20,10 @@ class Agent():
         # get training samples and associated labels
         self.training_samples = training_samples
         self.training_labels = training_labels
-        # get the list of neighbous, this agend can communicate with
+        # get test samples and associated labels
+        self.test_samples = test_samples
+        self.test_labels = test_labels
+        # get the list of neighbours, this agent can communicate with
         self.neighbours = neighbours
         # intialize a list for storing the training losses
         self.train_losses = []
@@ -37,20 +42,18 @@ class Agent():
         self.nb_errors = None
 
     def __call__(self):
+
         # todo include shared estimates
-
-
         self.network.train()
         self.optimizer.zero_grad()
 
         #select random sample
         r_indx = np.random.randint(0, self.training_samples.shape[0], 1)[0]
-
         sample, label = self.training_samples[r_indx].unsqueeze(0).unsqueeze(0), self.training_labels[r_indx]
+
         sample = sample.type(torch.FloatTensor)
         label = label.unsqueeze(0)
         self.output = self.network(sample)
-
         self.loss = F.nll_loss(self.output, label)
         self.loss.backward()
         #self.optimizer.step()
@@ -65,8 +68,7 @@ class Agent():
                 for weights in self.network.parameters():
                     new_weight = weights - self.learning_rate * weights.grad
                     weights.copy_(new_weight)
-        # after the calculations, we empty the shared estimates for the
-        # next step
+        # after the calculations, we empty the shared estimates for the next step
         self.shared_weights = []
 
     def receive_weights(self, weights):
@@ -85,3 +87,16 @@ class Agent():
             if torch.argmax(self.output[row]) != label[row]:
                 errors = errors+1
         return errors
+
+    def test(self):
+        with torch.no_grad():
+            a = self.test_samples.unsqueeze(0)
+            output = self.network(self.test_samples.unsqueeze(0))
+            test_loss = F.nll_loss(output, self.test_labels)
+
+            nr_correct = self.calculate_nb_errors(self.test_labels)
+                #torch.eq(output, self.test_labels).sum().item()
+
+        return nr_correct, test_loss
+            #print(f"Test Loss: {test_loss:.4f}")
+            #print(f"Test Accuracy: {(nr_correct / self.test_samples.shape[0]) * 100}%")
