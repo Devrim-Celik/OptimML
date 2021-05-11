@@ -4,6 +4,7 @@ import numpy as np
 import random
 from agents import Agent
 from graph import *
+from communication import DecentralizedCommunication
 
 graph = CycleGraph(10)
 NR_AGENTS = graph.n_nodes
@@ -35,16 +36,14 @@ agents = []
 for i, nb in graph.adj().items():
     agents.append(Agent(str(i), agent_data[i],  agent_labels[i], nb, optimizers[i], LR[i], ALPHA))
 
-epochs = 2
+communicate = DecentralizedCommunication(agents)
+epochs = 100
 for i in range(epochs):
     # update step
     [a() for a in agents]
 
     # share weights with neighbours
-    for send_indx, sender_agent in enumerate(agents):
-        for rec_indx, receiver_agent in enumerate(agents):
-            if rec_indx in sender_agent.neighbours:
-                receiver_agent.receive_weights(sender_agent._weights())
+    communicate.send_updates()
 
     # keep track of the loss and error of each agents: networks seem to learn
     # batch GD is implicitly implemented through the different agents
