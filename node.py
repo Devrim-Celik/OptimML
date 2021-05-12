@@ -7,7 +7,7 @@ import random
 from typing import List
 
 
-class Agent():
+class Node():
     def __init__(self,
                  name: str,
                  training_samples: torch.Tensor,
@@ -25,10 +25,11 @@ class Agent():
         # get test samples and associated labels
         self.test_samples = test_samples
         self.test_labels = test_labels
-        # get the list of neighbours, this agent can communicate with
+        # get the list of neighbours, this node can communicate with
         self.neighbours = neighbours
         # intialize a list for storing the training losses
-        self.train_losses = []
+        self.test_losses = []
+        self.test_accuracies = []
         # initialize the network
         self.network = Net()
         # save learning rate and the given optimizer
@@ -59,7 +60,7 @@ class Agent():
         self.loss = F.nll_loss(self.output, label)
         self.loss.backward()
         # self.optimizer.step()
-        self.nb_errors = self.calculate_proportion_errors(self.output, label)
+        #self.nb_errors = self.calculate_proportion_errors(self.output, label)
         # manual update
         with torch.no_grad():
             if self.shared_weights:
@@ -81,16 +82,16 @@ class Agent():
         return self.network.parameters()
 
     def training_loss(self):
-        return self.loss.item()
+        return self.loss.data[0]
 
-    def calculate_proportion_errors(self, output, label):
+    def calculate_accuracy(self, output, label):
         # compute prediction and compare against training labels
         errors = 0
         for row in range(output.size(0)):
             if torch.argmax(output[row]) != label[row]:
                 errors = errors + 1
         # return proportion of errors
-        return errors / output.size(0)
+        return (output.size(0) - errors) / output.size(0)
 
     def test(self):
         with torch.no_grad():
@@ -99,8 +100,8 @@ class Agent():
             output = self.network(test_samples)
             test_labels = self.test_labels
             test_loss = F.nll_loss(output, test_labels)
-            nr_correct = self.calculate_proportion_errors(output, self.test_labels)
+            acc = self.calculate_accuracy(output, self.test_labels)
 
-        return nr_correct, test_loss
+        return acc, test_loss
         # print(f"Test Loss: {test_loss:.4f}")
         # print(f"Test Accuracy: {(nr_correct / self.test_samples.shape[0]) * 100}%")
