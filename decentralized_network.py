@@ -30,6 +30,7 @@ class DecentralizedNetwork():
         # save the type of graph to be used
         self.graph_type = graph_type
         # construct the graph
+        # TODO what happens if graph takes more than 1 argument?
         self.graph = DecentralizedNetwork.graphs[graph_type](nr_nodes)
         # save the number of nodes in the graph
         self.nr_nodes = nr_nodes
@@ -55,7 +56,7 @@ class DecentralizedNetwork():
         # list for storing all agents
         self.nodes = []
         # load the data
-        node_tr_data, node_te_data, node_tr_labels, node_te_labels = load_MNIST_data(self.nr_nodes)
+        node_tr_data, node_te_data, node_tr_labels, node_te_labels = self.data_loader(self.nr_nodes)
 
         for indx, neighbours in self.graph.adj().items():
              self.nodes.append(Node(
