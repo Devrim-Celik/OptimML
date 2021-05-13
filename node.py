@@ -1,3 +1,4 @@
+from opacus import PrivacyEngine
 from networks import Net
 from torch.nn import functional as F
 import torchvision
@@ -5,7 +6,7 @@ import torch
 import numpy as np
 import random
 from typing import List
-
+from opacus.utils import module_modification
 
 class Node():
     def __init__(self,
@@ -17,7 +18,8 @@ class Node():
                  neighbours: List[str],
                  optimizer: torch.optim.Optimizer,
                  learning_rate: float,
-                 alpha: float) -> None:
+                 alpha: float,
+                 add_privacy: bool) -> None:
         self.name = name
         # get training samples and associated labels
         self.training_samples = training_samples
@@ -43,6 +45,17 @@ class Node():
         self.loss = None
         self.output = None
         self.nb_errors = None
+        self.add_privacy = add_privacy
+        if self.add_privacy:
+            self.network = module_modification.convert_batchnorm_modules(self.network)
+            privacy_engine = PrivacyEngine(
+                self.network,
+                sample_rate=0.01,
+                alphas=[10, 100],
+                noise_multiplier=1.3,
+                max_grad_norm=1.0,
+            )
+            privacy_engine.attach(self.optimizer)
 
     def __call__(self):
 

@@ -26,6 +26,7 @@ class DecentralizedNetwork():
         training_epochs: int,
         optimizer_type: float, # not used
         task_type: float, # not used
+        add_privacy: bool,
     ):
         # save the type of graph to be used
         self.graph_type = graph_type
@@ -43,11 +44,14 @@ class DecentralizedNetwork():
         # initialize data loader
         self.data_loader = DecentralizedNetwork.tasks[task_type]
 
-        # for storing the test and training accuraries/loss
+        # for storing the test and training accuracies/loss
         self.test_accuracies_mean = []
         self.test_losses_mean = []
         self.test_accuracies_nodes = []
         self.test_losses_nodes = []
+        # set up differential privacy
+        self.add_privacy = add_privacy
+
         # intialize nodes
         self.initialize_nodes()
 
@@ -67,7 +71,8 @@ class DecentralizedNetwork():
                 neighbours,
                 self.node_optimizer[indx],
                 self.node_lr,
-                self.node_alpha
+                self.node_alpha,
+                self.add_privacy,
             ))
 
     def train(self):
