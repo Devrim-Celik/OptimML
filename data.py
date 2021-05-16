@@ -65,9 +65,9 @@ class LoadData():
         # Create array that assigns a class to specific nodes
         # Used arange to ensure every class is represented before repeating
         # row represents nr_agents, column represents classes per node
-        agent_class_master = np.arange(start=0, stop=nr_agents*class_per_node).reshape(nr_agents, class_per_node)
-        agent_class_master = agent_class_master % len_unique
+        agent_class_master = np.arange(start=0, stop=nr_agents*class_per_node) % len_unique
         np.random.shuffle(agent_class_master)
+        agent_class_master = agent_class_master.reshape(nr_agents, class_per_node)
 
         # split data by labels
         sample_list = [[] for _ in range(len_unique)]
@@ -108,7 +108,8 @@ class LoadData():
             # append agents data and class labels in order
             all_agents.append(torch.stack(agent_data))
             all_class.append(torch.tensor(agent_class))
-
+        a = all_agents[0]
+        b = all_class[0]
         self.samples = all_agents
         self.labels = all_class
 

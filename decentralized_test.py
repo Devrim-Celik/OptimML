@@ -4,12 +4,12 @@ from decentralized_network import DecentralizedNetwork
 def main():
     # initialize
     dn = DecentralizedNetwork(
+        1,
         10,
-        2,
         'non_iid_uniform',
-        "CycleGraph",
+        "FullyConnectedGraph",
         0.9,
-        0.01,
+        0.001,
         1000,
         "Adam",
         "MNIST"
