@@ -5,6 +5,8 @@ def main():
     # initialize
     dn = DecentralizedNetwork(
         10,
+        2,
+        'non_iid_uniform',
         "CycleGraph",
         0.9,
         0.01,

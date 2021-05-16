@@ -1,6 +1,6 @@
 import graph as g
 import torch
-from data import load_MNIST_data
+from data import load_mnist_data
 from node import Node
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,25 +15,29 @@ class DecentralizedNetwork():
 
     optmizers = {"Adam": torch.optim.Adam}
 
-    tasks = {"MNIST": load_MNIST_data}
+    tasks = {"MNIST": load_mnist_data}
 
     def __init__(
         self,
         nr_nodes: int,
+        nr_classes: int,
+        allocation: str,
         graph_type: str,
         alpha: float,
         lr: float,
         training_epochs: int,
-        optimizer_type: float, # not used
-        task_type: float, # not used
+        optimizer_type: str, # not used
+        task_type: str, # not used
     ):
         # save the type of graph to be used
         self.graph_type = graph_type
         # construct the graph
         # TODO what happens if graph takes more than 1 argument?
         self.graph = DecentralizedNetwork.graphs[graph_type](nr_nodes)
-        # save the number of nodes in the graph
+        # save the number of nodes and classes to assign to each node in the graph
         self.nr_nodes = nr_nodes
+        self.nr_classes = nr_classes
+        self.allocation = allocation
         # get the optimizer
         self.node_optimizer = [DecentralizedNetwork.optmizers[optimizer_type] for _ in range(nr_nodes)]
         # save parameters
@@ -56,7 +60,8 @@ class DecentralizedNetwork():
         # list for storing all agents
         self.nodes = []
         # load the data
-        node_tr_data, node_te_data, node_tr_labels, node_te_labels = self.data_loader(self.nr_nodes)
+        node_tr_data, node_te_data, node_tr_labels, node_te_labels = self.data_loader(self.nr_nodes, self.nr_classes,
+                                                                                       self.allocation)
 
         for indx, neighbours in self.graph.adj().items():
              self.nodes.append(Node(
