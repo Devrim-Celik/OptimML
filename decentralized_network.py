@@ -86,13 +86,14 @@ class DecentralizedNetwork():
             self.share_weights()
 
             # calculate current test performance and store them
-            self.store_performance()
+            #self.store_performance_test()
 
             # print current performance
             if e % 100 == 0:
+                self.store_performance_test()
                 self.training_print(e)
 
-    def store_performance(self):
+    def store_performance_test(self):
         performances = [a.test() for a in self.nodes]
 
         self.test_accuracies_nodes.append([x[0] for x in performances])

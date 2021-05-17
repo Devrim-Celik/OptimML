@@ -1,6 +1,7 @@
 import numpy as np
 import torchvision
 import torch
+from matplotlib import pyplot
 
 
 class LoadData():
@@ -71,8 +72,8 @@ class LoadData():
 
         # split data by labels
         sample_list = [[] for _ in range(len_unique)]
-        for i in self.labels:
-            sample_list[i].append(self.samples[i])
+        for i in range(len(self.labels)):
+            sample_list[self.labels[i]].append(self.samples[i])
 
         # By class creates uniform indices splits to partition data to agents evenly
         class_count = np.bincount(agent_class_master.ravel())
@@ -101,15 +102,13 @@ class LoadData():
                 # add data and class to this agents list
                 agent_data = agent_data + data_for_agent
                 agent_class = agent_class + [cls for _ in range(len(data_for_agent))]
-
                 # drop first index since we used that data, forces next person to use next index
                 class_indices[cls] = temp_indices[1:]
 
             # append agents data and class labels in order
             all_agents.append(torch.stack(agent_data))
             all_class.append(torch.tensor(agent_class))
-        a = all_agents[0]
-        b = all_class[0]
+
         self.samples = all_agents
         self.labels = all_class
 
@@ -117,12 +116,17 @@ class LoadData():
 def load_mnist_data(nr_nodes, nr_classes, allocation):
     train = LoadData('MNIST', True)
     test = LoadData('MNIST', False)
-
     train_data, train_targets = train.split(allocation, nr_nodes, class_per_node=nr_classes)
     test_data, test_targets = test.split('uniform', nr_nodes)
 
     return train_data, test_data, train_targets, test_targets
 
+def plot_mnist(data):
+    for i in range(9):
+        pyplot.subplot(330 + 1 + i)
+        a = data[i]
+        pyplot.imshow(data[i], cmap=pyplot.get_cmap('gray'))
+    pyplot.show()
 
 if __name__ == '__main__':
 
