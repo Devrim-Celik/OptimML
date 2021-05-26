@@ -17,7 +17,8 @@ def main():
 
     dn.train()
     dn.plot_training()
-
+    print(dn.get_bytes())
+    
 if __name__ == "__main__":
     try:
         main()

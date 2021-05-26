@@ -5,6 +5,8 @@ import torch
 import numpy as np
 import random
 from typing import List
+import sys
+
 
 old_repr = torch.Tensor.__repr__
 def tensor_info(tensor):
@@ -48,6 +50,10 @@ class Node():
         self.output = None
         self.nb_errors = None
 
+        # for saving send and received bytes
+        self.sent_bytes = 0
+        self.received_bytes = 0
+
     def __call__(self):
 
         # todo include shared estimates
@@ -79,11 +85,18 @@ class Node():
         # after the calculations, we empty the shared estimates for the next step
         self.shared_weights = []
 
-    def receive_weights(self, weights):
+    def receive_weights(self, weights, byte_size):
+        self.received_bytes += byte_size
         self.shared_weights.append(weights)
 
     def _weights(self):
         return self.network.parameters()
+
+    def share_weights(self):
+        shared_weights = self._weights()
+        shared_weights_size = sys.getsizeof(shared_weights)
+        self.sent_bytes += shared_weights_size
+        return shared_weights, shared_weights_size
 
     def training_loss(self):
         return self.loss.data[0]

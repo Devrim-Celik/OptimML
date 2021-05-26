@@ -110,7 +110,10 @@ class DecentralizedNetwork():
         for sender_indx, sender in enumerate(self.nodes):
             for receiver_indx, receiver in enumerate(self.nodes):
                 if receiver_indx in sender.neighbours:
-                    receiver.receive_weights(sender._weights())
+                    receiver.receive_weights(*sender.share_weights())
+
+    def get_bytes(self):
+        return [{f"sent_bytes_{n_indx+1}":node.sent_bytes, f"received_bytes_{n_indx+1}":node.received_bytes} for n_indx, node in enumerate(self.nodes)]
 
     def plot_training(self):
         plt.figure("MP")
