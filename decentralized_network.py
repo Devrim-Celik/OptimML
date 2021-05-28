@@ -46,6 +46,7 @@ class DecentralizedNetwork():
         self.training_epochs = training_epochs
 
         # initialize data loader
+        self.task_type = task_type
         self.data_loader = DecentralizedNetwork.tasks[task_type]
 
         # for storing the test and training accuraries/loss

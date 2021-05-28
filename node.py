@@ -116,7 +116,7 @@ class Node():
             test_samples = self.test_samples.unsqueeze(1).type(torch.FloatTensor)
             output = self.network(test_samples)
             test_labels = self.test_labels
-            test_loss = F.nll_loss(output, test_labels)
+            test_loss = F.nll_loss(output, test_labels).item()
             acc = self.calculate_accuracy(output, self.test_labels)
 
         return acc, test_loss
