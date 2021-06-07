@@ -1,6 +1,6 @@
 import graph as g
 import torch
-from data import load_MNIST_data
+from data import load_mnist_data
 from node import Node
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,11 +15,13 @@ class DecentralizedNetwork():
 
     optmizers = {"Adam": torch.optim.Adam}
 
-    tasks = {"MNIST": load_MNIST_data}
+    tasks = {"MNIST": load_mnist_data}
 
     def __init__(
         self,
         nr_nodes: int,
+        nr_classes: int,
+        allocation: str,
         graph_type: str,
         alpha: float,
         lr: float,
@@ -27,13 +29,18 @@ class DecentralizedNetwork():
         optimizer_type: float, # not used
         task_type: float, # not used
         add_privacy: bool,
+        optimizer_type: str, # not used
+        task_type: str, # not used
     ):
         # save the type of graph to be used
         self.graph_type = graph_type
         # construct the graph
+        # TODO what happens if graph takes more than 1 argument?
         self.graph = DecentralizedNetwork.graphs[graph_type](nr_nodes)
-        # save the number of nodes in the graph
+        # save the number of nodes and classes to assign to each node in the graph
         self.nr_nodes = nr_nodes
+        self.nr_classes = nr_classes
+        self.allocation = allocation
         # get the optimizer
         self.node_optimizer = [DecentralizedNetwork.optmizers[optimizer_type] for _ in range(nr_nodes)]
         # save parameters
@@ -42,15 +49,19 @@ class DecentralizedNetwork():
         self.training_epochs = training_epochs
 
         # initialize data loader
+        self.task_type = task_type
         self.data_loader = DecentralizedNetwork.tasks[task_type]
 
-        # for storing the test and training accuracies/loss
+        # for storing the test and training accuraries/loss
         self.test_accuracies_mean = []
         self.test_losses_mean = []
         self.test_accuracies_nodes = []
         self.test_losses_nodes = []
         # set up differential privacy
         self.add_privacy = add_privacy
+
+        self.sent_bits = []
+        self.received_bits = []
 
         # intialize nodes
         self.initialize_nodes()
@@ -59,7 +70,8 @@ class DecentralizedNetwork():
         # list for storing all agents
         self.nodes = []
         # load the data
-        node_tr_data, node_te_data, node_tr_labels, node_te_labels = load_MNIST_data(self.nr_nodes)
+        node_tr_data, node_te_data, node_tr_labels, node_te_labels = self.data_loader(self.nr_nodes, self.nr_classes,
+                                                                                       self.allocation)
 
         for indx, neighbours in self.graph.adj().items():
              self.nodes.append(Node(
@@ -85,13 +97,14 @@ class DecentralizedNetwork():
             self.share_weights()
 
             # calculate current test performance and store them
-            self.store_performance()
+            #self.store_performance_test()
 
             # print current performance
-            if e % 100 == 0:
+            if e % 50 == 0:
+                self.store_performance_test()
                 self.training_print(e)
 
-    def store_performance(self):
+    def store_performance_test(self):
         performances = [a.test() for a in self.nodes]
 
         self.test_accuracies_nodes.append([x[0] for x in performances])
@@ -99,6 +112,9 @@ class DecentralizedNetwork():
 
         self.test_accuracies_mean.append(np.mean(self.test_accuracies_nodes[-1]))
         self.test_losses_mean.append(np.mean(self.test_losses_nodes[-1]))
+
+        self.sent_bits.append([node.sent_bytes for node in self.nodes])
+        self.received_bits.append([node.received_bytes for node in self.nodes])
 
     def training_print(self, epoch):
         print(f"[{epoch:5d}] Validation Data: Accuracy {self.test_accuracies_mean[-1]:.3f} | Loss {self.test_losses_mean[-1]:.3f}")
@@ -108,7 +124,10 @@ class DecentralizedNetwork():
         for sender_indx, sender in enumerate(self.nodes):
             for receiver_indx, receiver in enumerate(self.nodes):
                 if receiver_indx in sender.neighbours:
-                    receiver.receive_weights(sender._weights())
+                    receiver.receive_weights(*sender.share_weights())
+
+    def get_bytes(self):
+        return [{f"sent_bytes_{n_indx+1}":node.sent_bytes, f"received_bytes_{n_indx+1}":node.received_bytes} for n_indx, node in enumerate(self.nodes)]
 
     def plot_training(self):
         plt.figure("MP")

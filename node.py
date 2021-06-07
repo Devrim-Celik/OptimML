@@ -1,12 +1,18 @@
 from opacus import PrivacyEngine
 from networks import Net
 from torch.nn import functional as F
-import torchvision
 import torch
 import numpy as np
 import random
 from typing import List
 from opacus.utils import module_modification
+import sys
+
+
+old_repr = torch.Tensor.__repr__
+def tensor_info(tensor):
+    return repr(tensor.shape)[6:] + ' ' + repr(tensor.dtype)[6:] + '@' + str(tensor.device) + '\n' + old_repr(tensor)
+torch.Tensor.__repr__ = tensor_info
 
 class Node():
     def __init__(self,
@@ -29,7 +35,7 @@ class Node():
         self.test_labels = test_labels
         # get the list of neighbours, this node can communicate with
         self.neighbours = neighbours
-        # intialize a list for storing the training losses
+        # initialize a list for storing the training losses
         self.test_losses = []
         self.test_accuracies = []
         # initialize the network
@@ -56,6 +62,10 @@ class Node():
                 max_grad_norm=1.0,
             )
             privacy_engine.attach(self.optimizer)
+
+        # for saving send and received bytes
+        self.sent_bytes = 0
+        self.received_bytes = 0
 
     def __call__(self):
 
@@ -88,11 +98,18 @@ class Node():
         # after the calculations, we empty the shared estimates for the next step
         self.shared_weights = []
 
-    def receive_weights(self, weights):
+    def receive_weights(self, weights, byte_size):
+        self.received_bytes += byte_size
         self.shared_weights.append(weights)
 
     def _weights(self):
         return self.network.parameters()
+
+    def share_weights(self):
+        shared_weights = self._weights()
+        shared_weights_size = sys.getsizeof(shared_weights)
+        self.sent_bytes += shared_weights_size
+        return shared_weights, shared_weights_size
 
     def training_loss(self):
         return self.loss.data[0]
@@ -112,7 +129,7 @@ class Node():
             test_samples = self.test_samples.unsqueeze(1).type(torch.FloatTensor)
             output = self.network(test_samples)
             test_labels = self.test_labels
-            test_loss = F.nll_loss(output, test_labels)
+            test_loss = F.nll_loss(output, test_labels).item()
             acc = self.calculate_accuracy(output, self.test_labels)
 
         return acc, test_loss

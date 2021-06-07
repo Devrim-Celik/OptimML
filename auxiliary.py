@@ -1,7 +1,7 @@
 from prettytable import PrettyTable
 import torch
 import torchvision
-
+import pickle
 
 def count_parameters(model):
     table = PrettyTable(["Modules", "Parameters"])
@@ -21,13 +21,14 @@ def load_data(batch_size_train, batch_size_test):
     torch.backends.cudnn.enabled = False
     torch.manual_seed(random_seed)
 
-
-    trainset = torchvision.datasets.MNIST('./data/', train=True, download=True,
+    train_loader = torch.utils.data.DataLoader(
+      torchvision.datasets.MNIST('./data/', train=True, download=True,
                              transform=torchvision.transforms.Compose([
                                torchvision.transforms.ToTensor(),
                                torchvision.transforms.Normalize(
                                  (0.1307,), (0.3081,))
-                             ]))
+                             ])),
+      batch_size=batch_size_train, shuffle=True)
 
     test_loader = torch.utils.data.DataLoader(
       torchvision.datasets.MNIST('./data', train=False, download=True,
@@ -37,9 +38,10 @@ def load_data(batch_size_train, batch_size_test):
                                  (0.1307,), (0.3081,))
                              ])),
       batch_size=batch_size_test, shuffle=True)
+    
+    return train_loader, test_loader
 
-    subset = list(range(0, len(trainset), 100))
-    trainset_1 = torch.utils.data.Subset(trainset, subset)
-    trainloader_1 = torch.utils.data.DataLoader(trainset_1, batch_size=batch_size_train,
-                                                shuffle=True)
-    return trainloader_1, test_loader
+def load_pickle(path):
+    with open(f"{path}.pkl", 'rb') as f:
+        data = pickle.load(f)
+    return data

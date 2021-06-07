@@ -4,10 +4,12 @@ from decentralized_network import DecentralizedNetwork
 def main():
     # initialize
     dn = DecentralizedNetwork(
-        2,
+        20,
+        3,
+        'non_iid_uniform',
         "CycleGraph",
         0.9,
-        0.01,
+        0.0001,
         1000,
         "Adam",
         "MNIST",
@@ -16,6 +18,7 @@ def main():
 
     dn.train()
     dn.plot_training()
+    print(dn.get_bytes())
 
 if __name__ == "__main__":
     try:
