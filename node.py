@@ -68,19 +68,31 @@ class Node():
         self.output = self.network(sample)
         self.loss = F.nll_loss(self.output, label)
         self.loss.backward()
-        # self.optimizer.step()
+        self.optimizer.step()
         #self.nb_errors = self.calculate_proportion_errors(self.output, label)
         # manual update
         with torch.no_grad():
+            # gradient descent step before averaging
+            #for weights in self.network.parameters():
+            #    new_weight = weights - self.learning_rate * weights.grad
+            #    weights.copy_(new_weight)
+
             if self.shared_weights:
-                for weights, neighbour_weights in zip(self.network.parameters(), random.choice(self.shared_weights)):
-                    new_weight = self.alpha * weights + (
-                                1 - self.alpha) * neighbour_weights - self.learning_rate * weights.grad
-                    weights.copy_(new_weight)
-            else:
-                for weights in self.network.parameters():
-                    new_weight = weights - self.learning_rate * weights.grad
-                    weights.copy_(new_weight)
+                # iterate through all the shared weights and average them
+                for i, neighbour in enumerate(self.shared_weights, start=1):
+                    # sum up the first n-1 neighbours
+                    if i < self.shared_weights.__len__():
+                        for weights, neighbour_weights in zip(self.network.parameters(), neighbour):
+                            # TODO WHAT does 1/2 change? without it produces nan for the loss and accuracy doesnt improve
+                            new_weight = (1/2) * weights + (1/2 * neighbour_weights  # - self.learning_rate * weights.grad
+                            weights.copy_(new_weight)
+
+                    # for the nth neighbour, we can compute the average
+                    else:
+                        for weights, neighbour_weights in zip(self.network.parameters(), neighbour):
+                            new_weight = (weights + neighbour_weights) / i
+                            weights.copy_(new_weight)
+
         # after the calculations, we empty the shared estimates for the next step
         self.shared_weights = []
 

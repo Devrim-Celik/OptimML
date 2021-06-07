@@ -13,7 +13,7 @@ class DecentralizedNetwork():
               "CycleGraph": g.CycleGraph
     }
 
-    optmizers = {"Adam": torch.optim.Adam}
+    optimizers = {"Adam": torch.optim.Adam}
 
     tasks = {"MNIST": load_mnist_data}
 
@@ -39,7 +39,7 @@ class DecentralizedNetwork():
         self.nr_classes = nr_classes
         self.allocation = allocation
         # get the optimizer
-        self.node_optimizer = [DecentralizedNetwork.optmizers[optimizer_type] for _ in range(nr_nodes)]
+        self.node_optimizer = [DecentralizedNetwork.optimizers[optimizer_type] for _ in range(nr_nodes)]
         # save parameters
         self.node_lr = lr
         self.node_alpha = alpha
@@ -49,7 +49,7 @@ class DecentralizedNetwork():
         self.task_type = task_type
         self.data_loader = DecentralizedNetwork.tasks[task_type]
 
-        # for storing the test and training accuraries/loss
+        # for storing the test and training accuracies/loss
         self.test_accuracies_mean = []
         self.test_losses_mean = []
         self.test_accuracies_nodes = []
@@ -57,7 +57,7 @@ class DecentralizedNetwork():
         self.sent_bits = []
         self.received_bits = []
 
-        # intialize nodes
+        # initialize nodes
         self.initialize_nodes()
 
     def initialize_nodes(self):
