@@ -1,6 +1,5 @@
 from networks import Net
 from torch.nn import functional as F
-import torchvision
 import torch
 import numpy as np
 import random
@@ -33,7 +32,7 @@ class Node():
         self.test_labels = test_labels
         # get the list of neighbours, this node can communicate with
         self.neighbours = neighbours
-        # intialize a list for storing the training losses
+        # initialize a list for storing the training losses
         self.test_losses = []
         self.test_accuracies = []
         # initialize the network

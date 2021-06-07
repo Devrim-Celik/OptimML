@@ -1,7 +1,7 @@
 from prettytable import PrettyTable
 import torch
 import torchvision
-#from torch.nn import functional as F
+import pickle
 
 def count_parameters(model):
     table = PrettyTable(["Modules", "Parameters"])
@@ -40,3 +40,8 @@ def load_data(batch_size_train, batch_size_test):
       batch_size=batch_size_test, shuffle=True)
     
     return train_loader, test_loader
+
+def load_pickle(path):
+    with open(f"{path}.pkl", 'rb') as f:
+        data = pickle.load(f)
+    return data

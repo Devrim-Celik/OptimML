@@ -30,7 +30,7 @@ class TestSuite:
             dn = DecentralizedNetwork(
                 self.nr_node_list[test_indx],
                 self.nr_classes_list[test_indx],
-                'non_iid_uniform',
+                'uniform',
                 self.graph_list[test_indx],
                 self.alpha_list[test_indx],
                 self.lr_list[test_indx],
@@ -52,10 +52,10 @@ class TestSuite:
                 node_dic = {}
                 node_dic["lr"] = dn.nodes[node_indx].learning_rate
                 node_dic["alpha"] = dn.nodes[node_indx].alpha
-                node_dic["test_accuracies"] = dn.test_accuracies_nodes[node_indx]
-                node_dic["test_losses"] = dn.test_losses_nodes[node_indx]
-                node_dic["sent_bytes"] = dn.nodes[node_indx].sent_bytes
-                node_dic["received_bytes"] = dn.nodes[node_indx].received_bytes
+                node_dic["test_accuracies"] = [row[node_indx] for row in dn.test_accuracies_nodes]
+                node_dic["test_losses"] = [row[node_indx] for row in dn.test_losses_nodes]
+                node_dic["sent_bytes"] = [row[node_indx] for row in dn.sent_bits]
+                node_dic["received_bytes"] = [row[node_indx] for row in dn.received_bits]
                 result_dic[f"node_{node_indx}"] = node_dic
 
             # append to the total results

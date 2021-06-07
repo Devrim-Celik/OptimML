@@ -54,6 +54,9 @@ class DecentralizedNetwork():
         self.test_losses_mean = []
         self.test_accuracies_nodes = []
         self.test_losses_nodes = []
+        self.sent_bits = []
+        self.received_bits = []
+
         # intialize nodes
         self.initialize_nodes()
 
@@ -90,7 +93,7 @@ class DecentralizedNetwork():
             #self.store_performance_test()
 
             # print current performance
-            if e % 100 == 0:
+            if e % 50 == 0:
                 self.store_performance_test()
                 self.training_print(e)
 
@@ -102,6 +105,9 @@ class DecentralizedNetwork():
 
         self.test_accuracies_mean.append(np.mean(self.test_accuracies_nodes[-1]))
         self.test_losses_mean.append(np.mean(self.test_losses_nodes[-1]))
+
+        self.sent_bits.append([node.sent_bytes for node in self.nodes])
+        self.received_bits.append([node.received_bytes for node in self.nodes])
 
     def training_print(self, epoch):
         print(f"[{epoch:5d}] Validation Data: Accuracy {self.test_accuracies_mean[-1]:.3f} | Loss {self.test_losses_mean[-1]:.3f}")
