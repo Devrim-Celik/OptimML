@@ -73,6 +73,7 @@ class Node():
         # manual update
         with torch.no_grad():
             if self.shared_weights:
+                # TODO Question of why 1 set of neighbor weights is randomly chosen vs all averaged
                 for weights, neighbour_weights in zip(self.network.parameters(), random.choice(self.shared_weights)):
                     new_weight = self.alpha * weights + (
                                 1 - self.alpha) * neighbour_weights - self.learning_rate * weights.grad

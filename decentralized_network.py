@@ -28,6 +28,7 @@ class DecentralizedNetwork():
         training_epochs: int,
         optimizer_type: str, # not used
         task_type: str, # not used
+        test_granularity=50
     ):
         # save the type of graph to be used
         self.graph_type = graph_type
@@ -56,6 +57,8 @@ class DecentralizedNetwork():
         self.test_losses_nodes = []
         self.sent_bits = []
         self.received_bits = []
+        self.test_granularity = test_granularity
+        self.epoch_list = []
 
         # intialize nodes
         self.initialize_nodes()
@@ -93,11 +96,11 @@ class DecentralizedNetwork():
             #self.store_performance_test()
 
             # print current performance
-            if e % 50 == 0:
-                self.store_performance_test()
+            if e % self.test_granularity == 0:
+                self.store_performance_test(e)
                 self.training_print(e)
 
-    def store_performance_test(self):
+    def store_performance_test(self, e):
         performances = [a.test() for a in self.nodes]
 
         self.test_accuracies_nodes.append([x[0] for x in performances])
@@ -108,6 +111,8 @@ class DecentralizedNetwork():
 
         self.sent_bits.append([node.sent_bytes for node in self.nodes])
         self.received_bits.append([node.received_bytes for node in self.nodes])
+
+        self.epoch_list.append(e)
 
     def training_print(self, epoch):
         print(f"[{epoch:5d}] Validation Data: Accuracy {self.test_accuracies_mean[-1]:.3f} | Loss {self.test_losses_mean[-1]:.3f}")

@@ -11,7 +11,8 @@ class TestSuite:
         nr_classes_list,
         lr_list,
         alpha_list,
-        training_epochs
+        training_epochs,
+        test_granularity
     ):
         self.graph_list = graph_list
         self.task_list = task_list
@@ -20,6 +21,7 @@ class TestSuite:
         self.lr_list = lr_list
         self.alpha_list = alpha_list
         self.training_epochs = training_epochs
+        self.test_granularity = test_granularity
 
     def run(self):
         self.all_tests = []
@@ -36,7 +38,8 @@ class TestSuite:
                 self.lr_list[test_indx],
                 self.training_epochs,
                 "Adam",
-                self.task_list[test_indx]
+                self.task_list[test_indx],
+                test_granularity=self.test_granularity
             )
             # train it
             dn.train()
@@ -46,6 +49,7 @@ class TestSuite:
             result_dic["nr_classes"] = dn.nr_classes
             result_dic["nr_nodes"] = dn.nr_nodes
             result_dic["training_epochs"] = self.training_epochs
+            result_dic["epoch_list"] = dn.epoch_list
 
             # fill node specific information
             for node_indx in range(self.nr_node_list[test_indx]):
