@@ -9,7 +9,7 @@ def main():
         'uniform',
         "CycleGraph",
         0.9,
-        0.0001,
+        0.00001,
         10,
         "Adam",
         "MNIST",
