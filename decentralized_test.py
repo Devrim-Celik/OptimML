@@ -4,15 +4,16 @@ from decentralized_network import DecentralizedNetwork
 def main():
     # initialize
     dn = DecentralizedNetwork(
-        20,
         3,
-        'non_iid_uniform',
+        3,
+        'uniform',
         "CycleGraph",
         0.9,
         0.0001,
-        1000,
+        10,
         "Adam",
-        "MNIST"
+        "MNIST",
+        test_granularity = 1
     )
 
     dn.train()
