@@ -4,9 +4,9 @@ from decentralized_network import DecentralizedNetwork
 def main():
     # initialize
     dn = DecentralizedNetwork(
+        10,
         3,
-        3,
-        'uniform',
+        'non_iid_uniform',
         "CycleGraph",
         0.9,
         0.0001,
