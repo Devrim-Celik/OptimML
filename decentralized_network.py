@@ -93,7 +93,7 @@ class DecentralizedNetwork():
             #self.store_performance_test()
 
             # print current performance
-            if e % 50 == 0:
+            if e % 1 == 0:
                 self.store_performance_test()
                 self.training_print(e)
 

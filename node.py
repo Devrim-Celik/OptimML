@@ -57,50 +57,44 @@ class Node():
 
         # todo include shared estimates
         self.network.train()
-        self.optimizer.zero_grad()
 
-        # select random sample
-        r_indx = np.random.randint(0, self.training_samples.shape[0], 1)[0]
-        sample, label = self.training_samples[r_indx].unsqueeze(0).unsqueeze(0), self.training_labels[r_indx]
+        # shuffle samples randomly
+        idx = torch.randperm(self.training_samples.shape[0])
 
-        sample = sample.type(torch.FloatTensor)
-        label = label.unsqueeze(0)
-        self.output = self.network(sample)
-        self.loss = F.nll_loss(self.output, label)
-        self.loss.backward()
-        self.optimizer.step()
-        #self.nb_errors = self.calculate_proportion_errors(self.output, label)
-        # manual update
-        with torch.no_grad():
-            # gradient descent step before averaging
-            #for weights in self.network.parameters():
-            #    new_weight = weights - self.learning_rate * weights.grad
-            #    weights.copy_(new_weight)
+        # only take a subset
+        n = 100
+        idx = idx[:n]
+        samples = self.training_samples[idx]
+        labels = self.training_labels[idx]
 
-            # if self.shared_weights:
-            #     # iterate through all the shared weights and average them
-            #     for i, neighbour in enumerate(self.shared_weights, start=1):
-            #         # sum up the first n-1 neighbours
-            #         if i < self.shared_weights.__len__():
-            #             for weights, neighbour_weights in zip(self.network.parameters(), neighbour):
-            #                 # TODO WHAT does 1/2 change? without it produces nan for the loss and accuracy doesnt improve
-            #                 new_weight = (1/2) * weights + (1/2) * neighbour_weights  # - self.learning_rate * weights.grad
-            #                 weights.copy_(new_weight)
-            #
-            #         # for the nth neighbour, we can compute the average
-            #         else:
-            #             for weights, neighbour_weights in zip(self.network.parameters(), neighbour):
-            #                 new_weight = (weights + neighbour_weights) / i
-            #                 weights.copy_(new_weight)
-            if self.shared_weights:
-                weights_iter = zip(self.network.parameters(), *self.shared_weights)
-                for elements in weights_iter:
-                    new_weight = sum([e/len(elements) for e in elements])
-                    elements[0].copy_(new_weight)
+        # do one step of SGD, which includes iterating through all samples once
+        for j in range(n):
 
+            self.optimizer.zero_grad()
 
-        # after the calculations, we empty the shared estimates for the next step
-        self.shared_weights = []
+            # select random sample
+            #r_indx = np.random.randint(0, self.training_samples.shape[0], 1)[0]
+            sample, label = samples[j].unsqueeze(0).unsqueeze(0), labels[j]
+
+            sample = sample.type(torch.FloatTensor)
+            label = label.unsqueeze(0)
+            self.output = self.network(sample)
+            self.loss = F.nll_loss(self.output, label)
+            self.loss.backward()
+            self.optimizer.step()
+            #self.nb_errors = self.calculate_proportion_errors(self.output, label)
+            # manual update
+            with torch.no_grad():
+
+                if self.shared_weights:
+                    weights_iter = zip(self.network.parameters(), *self.shared_weights)
+                    for elements in weights_iter:
+                        new_weight = sum([e / len(elements) for e in elements])
+                        elements[0].copy_(new_weight)
+
+            # after the calculations, we empty the shared estimates for the next step
+            self.shared_weights = []
+
 
     def receive_weights(self, weights, byte_size):
         self.received_bytes += byte_size
