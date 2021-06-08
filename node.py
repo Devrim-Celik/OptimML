@@ -1,3 +1,5 @@
+from opacus import PrivacyEngine
+from opacus.utils import module_modification
 from networks import Net
 from torch.nn import functional as F
 import torch
@@ -22,7 +24,11 @@ class Node():
                  neighbours: List[str],
                  optimizer: torch.optim.Optimizer,
                  learning_rate: float,
-                 alpha: float) -> None:
+                 alpha: float,
+                 training_epochs: int,
+                 add_privacy: bool,
+                 epsilon: float,
+                 delta: float) -> None:
         self.name = name
         # get training samples and associated labels
         self.training_samples = training_samples
@@ -48,6 +54,25 @@ class Node():
         self.loss = None
         self.output = None
         self.nb_errors = None
+        self.training_epochs = training_epochs
+        self.target_epsilon = epsilon
+        self.delta = delta
+        self.add_privacy = add_privacy
+        if self.add_privacy:
+            # we need to change the batchnorm module to make it private
+            self.network = module_modification.convert_batchnorm_modules(self.network)
+            # TODO work out optimal parameters
+            privacy_engine = PrivacyEngine(
+                self.network,
+                sample_rate=1/self.training_samples.shape[0],
+                epochs=self.training_epochs,
+                #alphas=[10, 100],
+                target_epsilon=self.target_epsilon,
+                target_delta=self.delta,
+                #noise_multiplier=1.3,
+                max_grad_norm=1.0,
+            )
+            privacy_engine.attach(self.optimizer)
 
         # for saving send and received bytes
         self.sent_bytes = 0

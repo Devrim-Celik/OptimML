@@ -28,6 +28,9 @@ class DecentralizedNetwork():
         training_epochs: int,
         optimizer_type: str, # not used
         task_type: str, # not used
+        add_privacy: bool,
+        epsilon: float,
+        delta: float,
         test_granularity=50,
         subset=True
     ):
@@ -45,7 +48,12 @@ class DecentralizedNetwork():
         # save parameters
         self.node_lr = lr
         self.node_alpha = alpha
+
+        # set up differential privacy
+        self.add_privacy = add_privacy
         self.training_epochs = training_epochs
+        self.epsilon = epsilon
+        self.delta = delta
 
         # initialize data loader
         self.task_type = task_type
@@ -82,7 +90,11 @@ class DecentralizedNetwork():
                 neighbours,
                 self.node_optimizer[indx],
                 self.node_lr,
-                self.node_alpha
+                self.node_alpha,
+                self.training_epochs,
+                self.add_privacy,
+                self.epsilon,
+                self.delta
             ))
             print(f'Node_{indx} - Train Num: {len(node_tr_labels[indx])} - Neighbors: {neighbours}')
 
