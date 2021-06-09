@@ -7,7 +7,10 @@ from matplotlib import pyplot
 class LoadData():
     def __init__(self,
                  dataset: str,
-                 train: bool):
+                 train: bool,
+                 subset: bool):
+
+        PERCENT = .1
 
         if dataset == 'MNIST':
             data = torchvision.datasets.MNIST('./data', train=train, download=True,
@@ -19,9 +22,17 @@ class LoadData():
         else:
             raise ValueError
 
+        data_size = len(data)
         self.data = data
-        self.samples = self.data.data
-        self.labels = self.data.targets
+
+        if subset:
+            indx = torch.randperm(data_size)[:int(data_size*PERCENT)]
+
+            self.samples = self.data.data[indx,:,:]
+            self.labels = self.data.targets[indx]
+        else:
+            self.samples = self.data.data
+            self.labels = self.data.targets
 
         self.random_seed = 42
 
@@ -113,9 +124,9 @@ class LoadData():
         self.labels = all_class
 
 
-def load_mnist_data(nr_nodes, nr_classes, allocation):
-    train = LoadData('MNIST', True)
-    test = LoadData('MNIST', False)
+def load_mnist_data(nr_nodes, nr_classes, allocation, subset):
+    train = LoadData('MNIST', True, subset)
+    test = LoadData('MNIST', False, False)
     train_data, train_targets = train.split(allocation, nr_nodes, class_per_node=nr_classes)
     test_data, test_targets = test.split('uniform', nr_nodes)
 

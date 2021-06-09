@@ -9,7 +9,7 @@ def main():
         allocation = 'uniform',
         graph_type = "CycleGraph",
         alpha = 0.9,
-        lr = 0.0001,
+        lr = 0.00001,
         training_epochs = 10,
         optimizer_type = "Adam",
         task_type = "MNIST",

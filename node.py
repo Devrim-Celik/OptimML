@@ -83,23 +83,23 @@ class Node():
         # todo include shared estimates
         self.network.train()
 
-        # shuffle samples randomly
-        idx = torch.randperm(self.training_samples.shape[0])
-
-        # only take a subset
-        n = 100
-        idx = idx[:n]
-        samples = self.training_samples[idx]
-        labels = self.training_labels[idx]
+        # # shuffle samples randomly
+        # idx = torch.randperm(self.training_samples.shape[0])
+        #
+        # # only take a subset
+        # n = 100
+        # idx = idx[:n]
+        # samples = self.training_samples[idx]
+        # labels = self.training_labels[idx]
 
         # do one step of SGD, which includes iterating through all samples once
-        for j in range(n):
+        for j in range(self.training_samples.shape[0]):
 
             self.optimizer.zero_grad()
 
             # select random sample
             #r_indx = np.random.randint(0, self.training_samples.shape[0], 1)[0]
-            sample, label = samples[j].unsqueeze(0).unsqueeze(0), labels[j]
+            sample, label = self.training_samples[j].unsqueeze(0).unsqueeze(0), self.training_labels[j]
 
             sample = sample.type(torch.FloatTensor)
             label = label.unsqueeze(0)

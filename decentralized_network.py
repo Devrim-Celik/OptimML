@@ -31,7 +31,8 @@ class DecentralizedNetwork():
         add_privacy: bool,
         epsilon: float,
         delta: float,
-        test_granularity=50
+        test_granularity=50,
+        subset=True
     ):
         # save the type of graph to be used
         self.graph_type = graph_type
@@ -57,6 +58,7 @@ class DecentralizedNetwork():
         # initialize data loader
         self.task_type = task_type
         self.data_loader = DecentralizedNetwork.tasks[task_type]
+        self.subset = subset
 
         # for storing the test and training accuracies/loss
         self.test_accuracies_mean = []
@@ -68,8 +70,6 @@ class DecentralizedNetwork():
         self.test_granularity = test_granularity
         self.epoch_list = []
 
-
-
         # initialize nodes
         self.initialize_nodes()
 
@@ -78,10 +78,10 @@ class DecentralizedNetwork():
         self.nodes = []
         # load the data
         node_tr_data, node_te_data, node_tr_labels, node_te_labels = self.data_loader(self.nr_nodes, self.nr_classes,
-                                                                                       self.allocation)
+                                                                                       self.allocation, self.subset)
 
         for indx, neighbours in self.graph.adj().items():
-             self.nodes.append(Node(
+            self.nodes.append(Node(
                 str(indx),
                 node_tr_data[indx],
                 node_tr_labels[indx],
@@ -96,6 +96,7 @@ class DecentralizedNetwork():
                 self.epsilon,
                 self.delta
             ))
+            print(f'Node_{indx} - Train Num: {len(node_tr_labels[indx])} - Neighbors: {neighbours}')
 
     def train(self):
         for e in range(self.training_epochs):
