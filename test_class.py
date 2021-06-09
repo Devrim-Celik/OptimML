@@ -12,7 +12,10 @@ class TestSuite:
         lr_list,
         alpha_list,
         training_epochs,
-        test_granularity
+        test_granularity,
+        add_privacy_list,
+        epsilon_list,
+        delta_list,
     ):
         self.graph_list = graph_list
         self.task_list = task_list
@@ -22,6 +25,10 @@ class TestSuite:
         self.alpha_list = alpha_list
         self.training_epochs = training_epochs
         self.test_granularity = test_granularity
+        # set up differential privacy
+        self.add_privacy_list = add_privacy_list
+        self.epsilon_list = epsilon_list
+        self.delta_list = delta_list
 
     def run(self):
         self.all_tests = []
@@ -39,10 +46,14 @@ class TestSuite:
                 self.training_epochs,
                 "Adam",
                 self.task_list[test_indx],
+                self.add_privacy_list[test_indx],
+                self.epsilon_list[test_indx],
+                self.delta_list[test_indx],
                 test_granularity=self.test_granularity
             )
             # train it
             dn.train()
+
             # fill the dictionary
             result_dic["task"] = dn.task_type
             result_dic["graph"] = dn.graph_type
@@ -50,6 +61,12 @@ class TestSuite:
             result_dic["nr_nodes"] = dn.nr_nodes
             result_dic["training_epochs"] = self.training_epochs
             result_dic["epoch_list"] = dn.epoch_list
+            result_dic["add_privacy_list"] = dn.add_privacy
+            result_dic["epsilon_list"] = dn.epsilon
+            result_dic["delta_list"] = dn.delta
+
+
+
 
             # fill node specific information
             for node_indx in range(self.nr_node_list[test_indx]):
