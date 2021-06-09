@@ -18,7 +18,6 @@ def main():
         delta = 1,
         test_granularity = 1
     )
-
     dn.train()
     dn.plot_training()
     print(dn.get_bytes())

@@ -123,7 +123,7 @@ class Node():
 
             # after the calculations, we empty the shared estimates for the next step
             self.shared_weights = []
-            running_loss += self.loss
+            running_loss += self.loss.item()
             errors += self.calculate_accuracy(self.output, label)
         self.train_losses.append(running_loss/self.training_samples.shape[0])
         self.train_accuracies.append(errors/self.training_samples.shape[0])
