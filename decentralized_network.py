@@ -127,6 +127,7 @@ class DecentralizedNetwork():
         self.sent_bits.append([node.sent_bytes for node in self.nodes])
         self.received_bits.append([node.received_bytes for node in self.nodes])
 
+
         self.epoch_list.append(e)
 
     def training_print(self, epoch):

@@ -58,6 +58,8 @@ class TestSuite:
                 node_dic["alpha"] = dn.nodes[node_indx].alpha
                 node_dic["test_accuracies"] = [row[node_indx] for row in dn.test_accuracies_nodes]
                 node_dic["test_losses"] = [row[node_indx] for row in dn.test_losses_nodes]
+                node_dic["train_accuracies"] = dn.nodes[node_indx].train_accuracies
+                node_dic["train_losses"] = dn.nodes[node_indx].train_losses
                 node_dic["sent_bytes"] = [row[node_indx] for row in dn.sent_bits]
                 node_dic["received_bytes"] = [row[node_indx] for row in dn.received_bits]
                 result_dic[f"node_{node_indx}"] = node_dic

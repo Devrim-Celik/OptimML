@@ -41,6 +41,8 @@ class Node():
         # initialize a list for storing the training losses
         self.test_losses = []
         self.test_accuracies = []
+        self.train_losses = []
+        self.train_accuracies = []
         # initialize the network
         self.network = Net()
         # save learning rate and the given optimizer
@@ -91,6 +93,8 @@ class Node():
         # idx = idx[:n]
         # samples = self.training_samples[idx]
         # labels = self.training_labels[idx]
+        running_loss = 0
+        errors = 0
 
         # do one step of SGD, which includes iterating through all samples once
         for j in range(self.training_samples.shape[0]):
@@ -119,7 +123,10 @@ class Node():
 
             # after the calculations, we empty the shared estimates for the next step
             self.shared_weights = []
-
+            running_loss += self.loss
+            errors += self.calculate_accuracy(self.output, label)
+        self.train_losses.append(running_loss/self.training_samples.shape[0])
+        self.train_accuracies.append(errors/self.training_samples.shape[0])
 
     def receive_weights(self, weights, byte_size):
         self.received_bytes += byte_size
