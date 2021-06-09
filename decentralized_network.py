@@ -31,8 +31,8 @@ class DecentralizedNetwork():
         add_privacy: bool,
         epsilon: float,
         delta: float,
-        test_granularity=50,
-        subset=True
+        subset: bool,
+        test_granularity=1,
     ):
         # save the type of graph to be used
         self.graph_type = graph_type

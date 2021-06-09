@@ -16,6 +16,7 @@ class TestSuite:
         add_privacy_list,
         epsilon_list,
         delta_list,
+        subset
     ):
         self.graph_list = graph_list
         self.task_list = task_list
@@ -29,6 +30,7 @@ class TestSuite:
         self.add_privacy_list = add_privacy_list
         self.epsilon_list = epsilon_list
         self.delta_list = delta_list
+        self.subset = subset
 
     def run(self):
         self.all_tests = []
@@ -43,13 +45,14 @@ class TestSuite:
                 self.graph_list[test_indx],
                 self.alpha_list[test_indx],
                 self.lr_list[test_indx],
-                self.training_epochs,
+                self.training_epochs[test_indx],
                 "Adam",
                 self.task_list[test_indx],
                 self.add_privacy_list[test_indx],
                 self.epsilon_list[test_indx],
                 self.delta_list[test_indx],
-                test_granularity=self.test_granularity
+                self.subset[test_indx],
+                test_granularity=self.test_granularity[test_indx]
             )
             # train it
             dn.train()
