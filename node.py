@@ -85,14 +85,11 @@ class Node():
         # todo include shared estimates
         self.network.train()
 
-        # # shuffle samples randomly
-        # idx = torch.randperm(self.training_samples.shape[0])
-        #
-        # # only take a subset
-        # n = 100
-        # idx = idx[:n]
-        # samples = self.training_samples[idx]
-        # labels = self.training_labels[idx]
+        # shuffle samples randomly
+        idx = torch.randperm(self.training_samples.shape[0])
+        samples = self.training_samples[idx]
+        labels = self.training_labels[idx]
+
         running_loss = 0
         errors = 0
 
@@ -101,9 +98,7 @@ class Node():
 
             self.optimizer.zero_grad()
 
-            # select random sample
-            #r_indx = np.random.randint(0, self.training_samples.shape[0], 1)[0]
-            sample, label = self.training_samples[j].unsqueeze(0).unsqueeze(0), self.training_labels[j]
+            sample, label = samples[j].unsqueeze(0).unsqueeze(0), labels[j]
 
             sample = sample.type(torch.FloatTensor)
             label = label.unsqueeze(0)
