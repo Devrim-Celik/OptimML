@@ -4,7 +4,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from typing import List
 
-
 class Topology(abc.ABC):
     """
     Base class to create various network topologies.
@@ -110,9 +109,20 @@ class RingOfCliques(Topology):
     """
     A ring of cliques graph is consisting of cliques, connected through single links. Each clique is a complete graph.
     """
-    def __init__(self, num_cliques, clique_size):
-        self.num_cliques = num_cliques
-        self.clique_size = clique_size
+    def __init__(self, num_cliques, clique_size=2):
+        if num_cliques == 4:
+            self.num_cliques = 2
+            self.clique_size = 2
+        elif num_cliques == 16:
+            self.num_cliques = 4
+            self.clique_size = 4
+        elif num_cliques == 32:
+            self.num_cliques = 4
+            self.clique_size = 8
+        else:
+            self.num_cliques = num_cliques
+            self.clique_size = clique_size
+
         super().__init__()
 
     def _create_graph(self):
@@ -138,7 +148,7 @@ class CirculantGraph(Topology):
 class CycleGraph(Topology):
     def __init__(self, n):
         """
-        Initialise the graph with n (int), offset (list)
+        Initialise the graph with n (int)
         """
         self.n = n
         super().__init__()
@@ -146,6 +156,38 @@ class CycleGraph(Topology):
     def _create_graph(self):
         return nx.cycle_graph(self.n)
 
+class Torus2D(Topology):
+    def __init__(self, m, n=2):
+        if m == 4:
+            self.m = 2
+        elif m == 16:
+            self.m = 8
+        elif m == 32:
+            self.m = 16
+        else:
+            self.m = m
+        self.n = n
+        super().__init__()
+
+    def _create_graph(self):
+        return nx.grid_2d_graph(self.m, self.n, periodic=True)
+
+    def tuple_to_1Dindex(self, tuple_):
+        return tuple_[0] * self.n + tuple_[1]
+
+    def adj(self):
+        """
+        Get concise form of nodes and their neighbors.
+        :return: dict {node : list of connection to node}
+        """
+        adj_dict = {}
+        for node in self.graph.nodes():
+            nb_list = []
+            for nb in self.graph.neighbors(node):
+                nb_list.append(self.tuple_to_1Dindex(nb))
+
+            adj_dict[self.tuple_to_1Dindex(node)] = nb_list
+        return adj_dict
 
 if __name__ == '__main__':
     graph = CycleGraph(10)

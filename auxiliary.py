@@ -3,6 +3,7 @@ import torch
 import torchvision
 import pickle
 
+
 def count_parameters(model):
     table = PrettyTable(["Modules", "Parameters"])
     total_params = 0

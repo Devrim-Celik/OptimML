@@ -10,7 +10,8 @@ class DecentralizedNetwork():
               "BinomialGraph": g.BinomialGraph,
               "RingOfCliques": g.RingOfCliques,
               "CirculantGraph": g.CirculantGraph,
-              "CycleGraph": g.CycleGraph
+              "CycleGraph": g.CycleGraph,
+              "Torus2D": g.Torus2D
     }
 
     optimizers = {"Adam": torch.optim.Adam}
@@ -33,6 +34,7 @@ class DecentralizedNetwork():
         delta: float,
         subset: bool,
         test_granularity=1,
+
     ):
         # save the type of graph to be used
         self.graph_type = graph_type
@@ -40,11 +42,11 @@ class DecentralizedNetwork():
         # TODO what happens if graph takes more than 1 argument?
         self.graph = DecentralizedNetwork.graphs[graph_type](nr_nodes)
         # save the number of nodes and classes to assign to each node in the graph
-        self.nr_nodes = nr_nodes
+        self.nr_nodes = self.graph.n_nodes
         self.nr_classes = nr_classes
         self.allocation = allocation
         # get the optimizer
-        self.node_optimizer = [DecentralizedNetwork.optimizers[optimizer_type] for _ in range(nr_nodes)]
+        self.node_optimizer = [DecentralizedNetwork.optimizers[optimizer_type] for _ in range(self.nr_nodes)]
         # save parameters
         self.node_lr = lr
         self.node_alpha = alpha
@@ -79,8 +81,7 @@ class DecentralizedNetwork():
         # load the data
         node_tr_data, node_te_data, node_tr_labels, node_te_labels = self.data_loader(self.nr_nodes, self.nr_classes,
                                                                                        self.allocation, self.subset)
-
-        for indx, neighbours in self.graph.adj().items():
+        for indx, (indx_, neighbours) in enumerate(self.graph.adj().items()):
             self.nodes.append(Node(
                 str(indx),
                 node_tr_data[indx],

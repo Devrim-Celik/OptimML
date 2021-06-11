@@ -68,9 +68,6 @@ class TestSuite:
             result_dic["epsilon_list"] = dn.epsilon
             result_dic["delta_list"] = dn.delta
 
-
-
-
             # fill node specific information
             for node_indx in range(self.nr_node_list[test_indx]):
                 node_dic = {}
@@ -86,6 +83,7 @@ class TestSuite:
 
             # append to the total results
             self.all_tests.append(result_dic)
+            self.save_results("./results/")
 
     def save_results(self, path):
         # save the results as a piickle, wir current time and date

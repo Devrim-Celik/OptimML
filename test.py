@@ -2,13 +2,13 @@ from test_class import TestSuite
 from sklearn.model_selection import ParameterGrid
 
 if __name__=="__main__":
-    parameters = {"graph_list":["FullyConnectedGraph", "FullyConnectedGraph", "FullyConnectedGraph", "FullyConnectedGraph"],
+    parameters = {"graph_list":["FullyConnectedGraph", "Torus2D", "CycleGraph", "RingOfCliques"],
          "task_list":["MNIST"],
          "nr_node_list":[4, 16, 32],
          "nr_classes_list":[0],
-         "lr_list":[0.001],
+         "lr_list":[0.0001],
          "alpha_list":[0.5],
-         "training_epochs":[5],
+         "training_epochs":[10],
          "test_granularity":[1],
          "add_privacy_list":[False],
          "epsilon_list":[0.1],

@@ -10,7 +10,7 @@ class LoadData():
                  train: bool,
                  subset: bool):
 
-        PERCENT = .1
+        PERCENT = .3
 
         if dataset == 'MNIST':
             data = torchvision.datasets.MNIST('./data', train=train, download=True,
