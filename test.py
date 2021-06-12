@@ -1,7 +1,8 @@
 from test_class import TestSuite
 from sklearn.model_selection import ParameterGrid
 
-if __name__=="__main__":
+
+def run_test():
     parameters = {"graph_list":["FullyConnectedGraph", "Torus2D", "CycleGraph", "RingOfCliques"],
          "task_list":["MNIST"],
          "nr_node_list":[4, 16, 32],
@@ -36,3 +37,6 @@ if __name__=="__main__":
     ts.run()
     # save results
     ts.save_results("./results/")
+
+if __name__=="__main__":
+    run_test()
