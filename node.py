@@ -86,7 +86,7 @@ class Node():
     def __call__(self):
 
         self.network.to(self.device)
-        self.optimizer.to(self.device)
+        self.optimizer
         # todo include shared estimates
         self.network.train()
 
