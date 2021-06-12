@@ -2,6 +2,7 @@ import numpy as np
 import torchvision
 import torch
 from matplotlib import pyplot
+from torch.utils.data import DataLoader, Dataset
 
 
 class LoadData():
@@ -124,13 +125,39 @@ class LoadData():
         self.labels = all_class
 
 
-def load_mnist_data(nr_nodes, nr_classes, allocation, subset):
+class CustomDataset(Dataset):
+    """
+    Creates dataset with both boolean and class labels. Used for auxiliary loss purposes
+    """
+    def __init__(self, inputs, targets):
+        """
+        :param inputs:          Images 2x14x14
+        :param targets:         class label
+        """
+        super(Dataset, self).__init__()
+        self.data = []
+        for inp, tgt in zip(inputs, targets):
+            self.data.append([inp, tgt])
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        return self.data[idx][0], self.data[idx][1]
+
+
+def load_mnist_data(nr_nodes, nr_classes, allocation, subset, batch_size):
     train = LoadData('MNIST', True, subset)
     test = LoadData('MNIST', False, False)
     train_data, train_targets = train.split(allocation, nr_nodes, class_per_node=nr_classes)
-    test_data, test_targets = test.split('uniform', nr_nodes)
+    train_dataset = CustomDataset(train_data, train_targets)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-    return train_data, test_data, train_targets, test_targets
+    test_data, test_targets = test.split('uniform', nr_nodes)
+    test_dataset = CustomDataset(test_data, test_targets)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+
+    return train_loader, test_loader
 
 def plot_mnist(data):
     for i in range(9):
@@ -141,6 +168,9 @@ def plot_mnist(data):
 
 if __name__ == '__main__':
 
-    train = LoadData('MNIST', True)
-    train_data, train_targets = train.split('non_iid_random', 15, class_per_node=3)
-    tr_data, te_data, tr_targets, te_targets = load_mnist_data(20, 2)
+    train_loader, test_loader = load_mnist_data(10, 10, 'uniform', False, 10)
+    for data, label in train_loader:
+        plot_mnist(data[0])
+        data = data
+        label = label[0][:10]
+        break

@@ -102,6 +102,7 @@ class DecentralizedNetwork():
     def train(self):
         for e in range(self.training_epochs):
             # do one SGD step for all nodes
+
             for n in self.nodes:
                 n()
 
@@ -127,7 +128,6 @@ class DecentralizedNetwork():
 
         self.sent_bits.append([node.sent_bytes for node in self.nodes])
         self.received_bits.append([node.received_bytes for node in self.nodes])
-
 
         self.epoch_list.append(e)
 
