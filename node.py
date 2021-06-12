@@ -80,15 +80,20 @@ class Node():
         self.sent_bytes = 0
         self.received_bytes = 0
 
+        # for NN decide cpu or gpu
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
     def __call__(self):
 
+        self.network.to(self.device)
+        self.optimizer.to(self.device)
         # todo include shared estimates
         self.network.train()
 
         # shuffle samples randomly
         idx = torch.randperm(self.training_samples.shape[0])
-        samples = self.training_samples[idx]
-        labels = self.training_labels[idx]
+        samples = self.training_samples[idx].to(self.device)
+        labels = self.training_labels[idx].to(self.device)
 
         running_loss = 0
         errors = 0
@@ -149,11 +154,12 @@ class Node():
         return (output.size(0) - errors) / output.size(0)
 
     def test(self):
+
         with torch.no_grad():
             # adjust shape of test samples
-            test_samples = self.test_samples.unsqueeze(1).type(torch.FloatTensor)
+            test_samples = self.test_samples.unsqueeze(1).type(torch.FloatTensor).to(self.device)
             output = self.network(test_samples)
-            test_labels = self.test_labels
+            test_labels = self.test_labels.to(self.device)
             test_loss = F.nll_loss(output, test_labels).item()
             acc = self.calculate_accuracy(output, self.test_labels)
 
