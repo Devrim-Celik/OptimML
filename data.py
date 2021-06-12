@@ -147,17 +147,23 @@ class CustomDataset(Dataset):
 
 
 def load_mnist_data(nr_nodes, nr_classes, allocation, subset, batch_size):
+    train_loader_list = []
+    test_loader_list = []
+
     train = LoadData('MNIST', True, subset)
     test = LoadData('MNIST', False, False)
+
     train_data, train_targets = train.split(allocation, nr_nodes, class_per_node=nr_classes)
-    train_dataset = CustomDataset(train_data, train_targets)
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    for data, targets in zip(train_data, train_targets):
+        train_dataset = CustomDataset(data, targets)
+        train_loader_list.append(DataLoader(train_dataset, batch_size=batch_size, shuffle=True))
 
     test_data, test_targets = test.split('uniform', nr_nodes)
-    test_dataset = CustomDataset(test_data, test_targets)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    for data, targets in zip(test_data, test_targets):
+        test_dataset = CustomDataset(data, targets)
+        test_loader_list.append(DataLoader(test_dataset, batch_size=batch_size, shuffle=False))
 
-    return train_loader, test_loader
+    return train_loader_list, test_loader_list
 
 def plot_mnist(data):
     for i in range(9):
@@ -168,9 +174,11 @@ def plot_mnist(data):
 
 if __name__ == '__main__':
 
-    train_loader, test_loader = load_mnist_data(10, 10, 'uniform', False, 10)
-    for data, label in train_loader:
-        plot_mnist(data[0])
-        data = data
-        label = label[0][:10]
-        break
+    train_loader, test_loader = load_mnist_data(10, 2, 'non_iid_uniform', False, 10)
+    a, b = next(iter(train_loader[0]))
+    c, d = next(iter(train_loader[0]))
+    # for data, label in train_loader[1]:
+    #     plot_mnist(data)
+    #     data = data
+    #     label = label
+    #     break

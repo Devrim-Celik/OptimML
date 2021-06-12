@@ -17,6 +17,7 @@ def main():
         epsilon=1,
         delta=1,
         subset=True,
+        batch_size=25,
         test_granularity=1
     )
     dn.train()

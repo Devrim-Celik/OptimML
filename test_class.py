@@ -16,7 +16,8 @@ class TestSuite:
         add_privacy_list,
         epsilon_list,
         delta_list,
-        subset
+        subset,
+        batch_size
     ):
         self.graph_list = graph_list
         self.task_list = task_list
@@ -31,6 +32,7 @@ class TestSuite:
         self.epsilon_list = epsilon_list
         self.delta_list = delta_list
         self.subset = subset
+        self.batch_size = batch_size
 
     def run(self):
         self.all_tests = []
@@ -52,6 +54,7 @@ class TestSuite:
                 self.epsilon_list[test_indx],
                 self.delta_list[test_indx],
                 self.subset[test_indx],
+                self.batch_size[test_indx],
                 test_granularity=self.test_granularity[test_indx]
             )
             # train it
@@ -67,6 +70,7 @@ class TestSuite:
             result_dic["add_privacy_list"] = dn.add_privacy
             result_dic["epsilon_list"] = dn.epsilon
             result_dic["delta_list"] = dn.delta
+            result_dic["batch_size"] = dn.batch_size
 
             # fill node specific information
             for node_indx in range(self.nr_node_list[test_indx]):

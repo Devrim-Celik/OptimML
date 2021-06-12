@@ -33,6 +33,7 @@ class DecentralizedNetwork():
         epsilon: float,
         delta: float,
         subset: bool,
+        batch_size: int,
         test_granularity=1,
 
     ):
@@ -61,6 +62,9 @@ class DecentralizedNetwork():
         self.task_type = task_type
         self.data_loader = DecentralizedNetwork.tasks[task_type]
         self.subset = subset
+        self.batch_size = batch_size
+        self.train_dataloader_list = None
+        self.test_dataloader_list = None
 
         # for storing the test and training accuracies/loss
         self.test_accuracies_mean = []
@@ -79,15 +83,19 @@ class DecentralizedNetwork():
         # list for storing all agents
         self.nodes = []
         # load the data
-        node_tr_data, node_te_data, node_tr_labels, node_te_labels = self.data_loader(self.nr_nodes, self.nr_classes,
-                                                                                       self.allocation, self.subset)
+        # node_tr_data, node_te_data, node_tr_labels, node_te_labels = self.data_loader(self.nr_nodes, self.nr_classes,
+        #                                                                                self.allocation, self.subset)
+        self.train_dataloader_list, self.test_dataloader_list = self.data_loader(self.nr_nodes, self.nr_classes,
+                                                             self.allocation, self.subset, self.batch_size)
         for indx, (indx_, neighbours) in enumerate(self.graph.adj().items()):
             self.nodes.append(Node(
                 str(indx),
-                node_tr_data[indx],
-                node_tr_labels[indx],
-                node_te_data[indx],
-                node_te_labels[indx],
+                self.train_dataloader_list[indx],
+                self.test_dataloader_list[indx],
+                # node_tr_data[indx],
+                # node_tr_labels[indx],
+                # node_te_data[indx],
+                # node_te_labels[indx],
                 neighbours,
                 self.node_optimizer[indx],
                 self.node_lr,
@@ -97,17 +105,17 @@ class DecentralizedNetwork():
                 self.epsilon,
                 self.delta
             ))
-            print(f'Node_{indx} - Train Num: {len(node_tr_labels[indx])} - Neighbors: {neighbours}')
+            print(f'Node_{indx} - Train Num: {len(self.train_dataloader_list[indx].dataset)} - Neighbors: {neighbours}')
 
     def train(self):
         for e in range(self.training_epochs):
-            # do one SGD step for all nodes
+            batch_iters = max([len(loader) for loader in self.train_dataloader_list])
+            for batch in range(batch_iters):
+                for n in self.nodes:
+                    n(batch)
 
-            for n in self.nodes:
-                n()
-
-            # share weights between the nodes
-            self.share_weights()
+                # share weights between the nodes
+                self.share_weights()
 
             # calculate current test performance and store them
             #self.store_performance_test()
