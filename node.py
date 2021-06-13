@@ -45,7 +45,9 @@ class Node():
         # initialize a list for storing the training losses
         self.test_losses = []
         self.test_accuracies = []
+        self.train_losses_temp = []
         self.train_losses = []
+        self.train_accuracies_temp = []
         self.train_accuracies = []
         # initialize the network
         self.network = Net()
@@ -96,7 +98,7 @@ class Node():
         running_loss = 0
         errors = 0
 
-        if batch < len(self.train_dataloader)-1:
+        if batch < len(self.train_dataloader):
             sample, label = next(iter(self.train_dataloader))
 
             self.optimizer.zero_grad()
@@ -123,8 +125,8 @@ class Node():
             errors += self.calculate_accuracy(self.output, label)
 
             #TODO may not be working this way...
-            self.train_losses.append(running_loss/sample.size(0))
-            self.train_accuracies.append(errors/sample.size(0))
+            self.train_losses_temp.append(running_loss/sample.size(0))
+            self.train_accuracies_temp.append(errors/sample.size(0))
 
     def receive_weights(self, weights, byte_size):
         self.received_bytes += byte_size
@@ -150,6 +152,14 @@ class Node():
                 errors = errors + 1
         # return proportion of errors
         return (output.size(0) - errors) / output.size(0)
+
+    def reset_train_performance_(self):
+        self.train_accuracies_temp = []
+        self.train_losses_temp = []
+
+    def save_train_per_epoch(self):
+        self.train_accuracies.append(np.mean(self.train_accuracies_temp))
+        self.train_losses.append(np.mean(self.train_losses_temp))
 
     def test(self):
         running_loss = 0

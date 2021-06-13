@@ -122,11 +122,14 @@ class DecentralizedNetwork():
 
             # print current performance
             if e % self.test_granularity == 0:
-                self.store_performance_test(e)
+                self.store_performance(e)
                 self.training_print(e)
 
-    def store_performance_test(self, e):
+    def store_performance(self, e):
         performances = [a.test() for a in self.nodes]
+
+        [a.save_train_per_epoch() for a in self.nodes]
+        [a.reset_train_performance_() for a in self.nodes]
 
         self.test_accuracies_nodes.append([x[0] for x in performances])
         self.test_losses_nodes.append([x[1] for x in performances])
@@ -141,7 +144,6 @@ class DecentralizedNetwork():
 
     def training_print(self, epoch):
         print(f"[{epoch:5d}] Validation Data: Accuracy {self.test_accuracies_mean[-1]:.3f} | Loss {self.test_losses_mean[-1]:.3f}")
-
 
     def share_weights(self):
         for sender_indx, sender in enumerate(self.nodes):
