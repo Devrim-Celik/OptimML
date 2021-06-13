@@ -127,7 +127,7 @@ class LoadData():
 
 class CustomDataset(Dataset):
     """
-    Creates dataset with both boolean and class labels. Used for auxiliary loss purposes
+    Creates dataset with both boolean and class labels.
     """
     def __init__(self, inputs, targets):
         """
