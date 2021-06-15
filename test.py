@@ -4,9 +4,9 @@ from sklearn.model_selection import ParameterGrid
 # def run_test():
 parameters = {"graph_list": ["FullyConnectedGraph", "CycleGraph", "Torus2D", "RingOfCliques"],
               "task_list": ["MNIST"],
-              "nr_node_list": [32],
+              "nr_node_list": [4, 16, 32],
               "nr_classes_list": [3],
-              "lr_list": [0.1],
+              "lr_list": [0.001],
               "alpha_list": [0.5],
               "training_epochs": [50],
               "test_granularity": [1],

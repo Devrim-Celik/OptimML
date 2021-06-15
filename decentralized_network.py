@@ -126,6 +126,7 @@ class DecentralizedNetwork():
 
     def reset_sharing(self):
         for a in self.nodes:
+            a.iter_loader = iter(a.train_dataloader)
             a.stop_sharing = False
 
     def store_performance(self, e):
