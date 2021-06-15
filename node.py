@@ -72,7 +72,7 @@ class Node():
             # TODO work out optimal parameters
             privacy_engine = PrivacyEngine(
                 self.network,
-                sample_rate=1/self.training_samples.shape[0],
+                sample_rate=1/len(self.train_dataloader.dataset),
                 epochs=self.training_epochs,
                 #alphas=[10, 100],
                 target_epsilon=self.target_epsilon,
@@ -125,8 +125,8 @@ class Node():
             errors += self.calculate_accuracy(self.output, label)
 
             #TODO may not be working this way...
-            self.train_losses_temp.append(running_loss/sample.size(0))
-            self.train_accuracies_temp.append(errors/sample.size(0))
+            self.train_losses_temp.append(running_loss)
+            self.train_accuracies_temp.append(errors)
 
     def receive_weights(self, weights, byte_size):
         self.received_bytes += byte_size

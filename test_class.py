@@ -43,7 +43,7 @@ class TestSuite:
             dn = DecentralizedNetwork(
                 self.nr_node_list[test_indx],
                 self.nr_classes_list[test_indx],
-                'uniform',
+                'random',
                 self.graph_list[test_indx],
                 self.alpha_list[test_indx],
                 self.lr_list[test_indx],
