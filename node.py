@@ -66,13 +66,14 @@ class Node():
         self.target_epsilon = epsilon
         self.delta = delta
         self.add_privacy = add_privacy
+        self.stop_sharing = False
         if self.add_privacy:
             # we need to change the batchnorm module to make it private
             self.network = module_modification.convert_batchnorm_modules(self.network)
             # TODO work out optimal parameters
             privacy_engine = PrivacyEngine(
                 self.network,
-                sample_rate=1/self.training_samples.shape[0],
+                sample_rate=1/len(self.train_dataloader.dataset),
                 epochs=self.training_epochs,
                 #alphas=[10, 100],
                 target_epsilon=self.target_epsilon,
@@ -123,22 +124,29 @@ class Node():
             self.shared_weights = []
             running_loss += self.loss.item()
             errors += self.calculate_accuracy(self.output, label)
+        else:
+            self.stop_sharing = True
 
             #TODO may not be working this way...
             self.train_losses_temp.append(running_loss/sample.size(0))
-            self.train_accuracies_temp.append(errors/sample.size(0))
+            self.train_accuracies_temp.append(errors)
 
     def receive_weights(self, weights, byte_size):
         self.received_bytes += byte_size
-        self.shared_weights.append(weights)
+        if weights:
+            self.shared_weights.append(weights)
 
     def _weights(self):
         return self.network.parameters()
 
     def share_weights(self):
-        shared_weights = self._weights()
-        shared_weights_size = sys.getsizeof(shared_weights)
-        self.sent_bytes += shared_weights_size
+        if not self.stop_sharing:
+            shared_weights = self._weights()
+            shared_weights_size = sys.getsizeof(shared_weights)
+            self.sent_bytes += shared_weights_size
+        else:
+            shared_weights = []
+            shared_weights_size = 0
         return shared_weights, shared_weights_size
 
     def training_loss(self):

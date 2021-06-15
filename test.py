@@ -2,19 +2,19 @@ from test_class import TestSuite
 from sklearn.model_selection import ParameterGrid
 
 # def run_test():
-parameters = {"graph_list": ["FullyConnectedGraph", "CycleGraph"],
+parameters = {"graph_list": ["FullyConnectedGraph", "CycleGraph", "Torus2D", "RingOfCliques"],
               "task_list": ["MNIST"],
-              "nr_node_list": [16],
-              "nr_classes_list": [0],
-              "lr_list": [0.0001],
+              "nr_node_list": [32],
+              "nr_classes_list": [3],
+              "lr_list": [0.1],
               "alpha_list": [0.5],
-              "training_epochs": [10],
+              "training_epochs": [50],
               "test_granularity": [1],
-              "add_privacy_list": [False],
-              "epsilon_list": [0.1],
-              "delta_list": [.5],
-              "subset": [True],
-              "batch_size": [25]
+              "add_privacy_list": [False, True],
+              "epsilon_list": [1.1],
+              "delta_list": [1e-6],
+              "subset": [False],
+              "batch_size": [128]
               }
 grid = []
 for p in ParameterGrid(parameters):
