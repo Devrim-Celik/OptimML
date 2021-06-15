@@ -96,40 +96,32 @@ class Node():
         # todo include shared estimates
         self.network.train()
 
-        running_loss = 0
-        errors = 0
-
         if batch < len(self.train_dataloader):
             sample, label = next(iter(self.train_dataloader))
 
             self.optimizer.zero_grad()
 
-            #sample, label = samples[j].unsqueeze(0).unsqueeze(0), labels[j]
-
             sample = sample.unsqueeze(1).type(torch.FloatTensor)
-            # label = label.unsqueeze(0)
             self.output = self.network(sample)
             self.loss = F.nll_loss(self.output, label)
             self.loss.backward()
             self.optimizer.step()
-            #self.nb_errors = self.calculate_proportion_errors(self.output, label)
-            # manual update
-            with torch.no_grad():
-                if self.shared_weights:
-                    weights_iter = zip(self.network.parameters(), *self.shared_weights)
-                    for elements in weights_iter:
-                        new_weight = sum([e / len(elements) for e in elements])
-                        elements[0].copy_(new_weight)
-            # after the calculations, we empty the shared estimates for the next step
-            self.shared_weights = []
-            running_loss += self.loss.item()
-            errors += self.calculate_accuracy(self.output, label)
+
+            self.train_losses_temp.append(self.loss.item())
+            self.train_accuracies_temp.append(self.calculate_accuracy(self.output, label))
         else:
             self.stop_sharing = True
 
-            #TODO may not be working this way...
-            self.train_losses_temp.append(running_loss)
-            self.train_accuracies_temp.append(errors)
+        with torch.no_grad():
+            if self.shared_weights:
+                weights_iter = zip(self.network.parameters(), *self.shared_weights)
+                for elements in weights_iter:
+                    new_weight = sum([e / len(elements) for e in elements])
+                    elements[0].copy_(new_weight)
+
+        # after the calculations, we empty the shared estimates for the next step
+        self.shared_weights = []
+
 
     def receive_weights(self, weights, byte_size):
         self.received_bytes += byte_size

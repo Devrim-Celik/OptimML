@@ -117,13 +117,16 @@ class DecentralizedNetwork():
                 # share weights between the nodes
                 self.share_weights()
 
-            # calculate current test performance and store them
-            #self.store_performance_test()
+            self.reset_sharing()
 
             # print current performance
             if e % self.test_granularity == 0:
                 self.store_performance(e)
                 self.training_print(e)
+
+    def reset_sharing(self):
+        for a in self.nodes:
+            a.stop_sharing = False
 
     def store_performance(self, e):
         performances = [a.test() for a in self.nodes]
@@ -149,6 +152,7 @@ class DecentralizedNetwork():
         for sender_indx, sender in enumerate(self.nodes):
             for receiver_indx, receiver in enumerate(self.nodes):
                 if receiver_indx in sender.neighbours:
+                    a, b = sender.share_weights()
                     receiver.receive_weights(*sender.share_weights())
 
     def get_bytes(self):
