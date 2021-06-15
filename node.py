@@ -128,7 +128,7 @@ class Node():
             self.stop_sharing = True
 
             #TODO may not be working this way...
-            self.train_losses_temp.append(running_loss/sample.size(0))
+            self.train_losses_temp.append(running_loss)
             self.train_accuracies_temp.append(errors)
 
     def receive_weights(self, weights, byte_size):
