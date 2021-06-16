@@ -1,13 +1,13 @@
 import os
+
 import torch
-import torchvision
-from torch.nn import functional as F
-from networks import Net
-from auxiliary import load_data, count_parameters
-
 import torch.optim as optim
+from torch.nn import functional as F
 
-# Hyperparameters Convolutional Network
+from auxiliary import load_data, count_parameters
+from networks import Net
+
+# Hyperparameters convolutional network
 n_epochs = 1
 batch_size_train = 64
 batch_size_test = 1000
@@ -25,7 +25,7 @@ optimizer = optim.Adam(network.parameters(), lr=learning_rate)
 
 # Set up folder for models
 if not os.path.exists('./results'):
-        os.makedirs('./results')
+    os.makedirs('./results')
 
 # Count and display number of parameters
 count_parameters(network)
@@ -34,7 +34,8 @@ count_parameters(network)
 train_losses = []
 train_counter = []
 test_losses = []
-test_counter = [i*len(train_loader.dataset) for i in range(n_epochs + 1)]
+test_counter = [i * len(train_loader.dataset) for i in range(n_epochs + 1)]
+
 
 def train(epoch):
     network.train()
@@ -47,10 +48,10 @@ def train(epoch):
         if batch_idx % log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader), loss.item()))
+                       100. * batch_idx / len(train_loader), loss.item()))
             train_losses.append(loss.item())
             train_counter.append(
-                (batch_idx*64) + ((epoch-1)*len(train_loader.dataset)))
+                (batch_idx * 64) + ((epoch - 1) * len(train_loader.dataset)))
             # Save the model
             torch.save(network.state_dict(), './results' + f'/{network.__class__.__name__}.ckpt')
 
@@ -71,9 +72,10 @@ def test():
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
-# test the model before training
+
+# Test the model before training
 test()
-# train and test it
+# Train and test it again
 for epoch in range(1, n_epochs + 1):
     train(epoch)
     test()

@@ -1,11 +1,11 @@
 import numpy as np
-import torchvision
 import torch
+import torchvision
 from matplotlib import pyplot
 from torch.utils.data import DataLoader, Dataset
 
 
-class LoadData():
+class LoadData:
     def __init__(self,
                  dataset: str,
                  train: bool,
@@ -15,11 +15,11 @@ class LoadData():
 
         if dataset == 'MNIST':
             data = torchvision.datasets.MNIST('./data', train=train, download=True,
-                                                    transform=torchvision.transforms.Compose([
-                                                        torchvision.transforms.ToTensor(),
-                                                        torchvision.transforms.Normalize(
-                                                            (0.1307,), (0.3081,))
-                                                    ]))
+                                              transform=torchvision.transforms.Compose([
+                                                  torchvision.transforms.ToTensor(),
+                                                  torchvision.transforms.Normalize(
+                                                      (0.1307,), (0.3081,))
+                                              ]))
         else:
             raise ValueError
 
@@ -27,9 +27,8 @@ class LoadData():
         self.data = data
 
         if subset:
-            indx = torch.randperm(data_size)[:int(data_size*PERCENT)]
-
-            self.samples = self.data.data[indx,:,:]
+            indx = torch.randperm(data_size)[:int(data_size * PERCENT)]
+            self.samples = self.data.data[indx, :, :]
             self.labels = self.data.targets[indx]
         else:
             self.samples = self.data.data
@@ -76,13 +75,13 @@ class LoadData():
         len_unique = len(unique)
 
         # Create array that assigns a class to specific nodes
-        # Used arange to ensure every class is represented before repeating
-        # row represents nr_agents, column represents classes per node
-        agent_class_master = np.arange(start=0, stop=nr_agents*class_per_node) % len_unique
+        # Use 'np.arange' to ensure every class is represented before repeating
+        # A row represents nr_agents, a column represents classes per node
+        agent_class_master = np.arange(start=0, stop=nr_agents * class_per_node) % len_unique
         np.random.shuffle(agent_class_master)
         agent_class_master = agent_class_master.reshape(nr_agents, class_per_node)
 
-        # split data by labels
+        # Split data by labels
         sample_list = [[] for _ in range(len_unique)]
         for i in range(len(self.labels)):
             sample_list[self.labels[i]].append(self.samples[i])
@@ -92,12 +91,12 @@ class LoadData():
         class_indices = {}
         for i in range(len(class_count)):
             if random:
-                indices = sorted(np.random.randint(0, high=len(sample_list[i]), size=class_count[i]-1).tolist())
+                indices = sorted(np.random.randint(0, high=len(sample_list[i]), size=class_count[i] - 1).tolist())
                 indices = [0] + indices
                 indices += [len(sample_list[i])]
                 class_indices[i] = indices
             else:
-                class_indices[i] = np.linspace(start=0, stop=len(sample_list[i]), num=class_count[i]+1,
+                class_indices[i] = np.linspace(start=0, stop=len(sample_list[i]), num=class_count[i] + 1,
                                                dtype=int).tolist()
 
         # Main loop that partitions data by the assigned class and proper amount
@@ -107,17 +106,18 @@ class LoadData():
             agent_data = []
             agent_class = []
             for cls in agent:
-                # proportioned indices for data and grab correctly indexed data
+                # Proportioned indices for data and grab correctly indexed data
                 temp_indices = class_indices[cls]
-                data_for_agent = sample_list[cls][temp_indices[0]:temp_indices[1]-1]
+                data_for_agent = sample_list[cls][temp_indices[0]:temp_indices[1] - 1]
 
-                # add data and class to this agents list
+                # Add data and class to this agents list
                 agent_data = agent_data + data_for_agent
                 agent_class = agent_class + [cls for _ in range(len(data_for_agent))]
-                # drop first index since we used that data, forces next person to use next index
+
+                # Drop first index since we used that data, forces next person to use next index
                 class_indices[cls] = temp_indices[1:]
 
-            # append agents data and class labels in order
+            # Append agents data and class labels in order
             all_agents.append(torch.stack(agent_data))
             all_class.append(torch.tensor(agent_class))
 
@@ -129,6 +129,7 @@ class CustomDataset(Dataset):
     """
     Creates dataset with both boolean and class labels.
     """
+
     def __init__(self, inputs, targets):
         """
         :param inputs:          Images 2x14x14
@@ -165,20 +166,10 @@ def load_mnist_data(nr_nodes, nr_classes, allocation, subset, batch_size):
 
     return train_loader_list, test_loader_list
 
+
 def plot_mnist(data):
     for i in range(9):
         pyplot.subplot(330 + 1 + i)
         a = data[i]
         pyplot.imshow(data[i], cmap=pyplot.get_cmap('gray'))
     pyplot.show()
-
-if __name__ == '__main__':
-
-    train_loader, test_loader = load_mnist_data(10, 2, 'non_iid_uniform', False, 10)
-    a, b = next(iter(train_loader[0]))
-    c, d = next(iter(train_loader[0]))
-    # for data, label in train_loader[1]:
-    #     plot_mnist(data)
-    #     data = data
-    #     label = label
-    #     break

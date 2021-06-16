@@ -1,64 +1,56 @@
+import sys
+from typing import List
+
+import numpy as np
+import torch
 from opacus import PrivacyEngine
 from opacus.utils import module_modification
-from networks import Net
 from torch.nn import functional as F
-import torch
-import numpy as np
-import random
-from typing import List
-import sys
 
+from networks import Net
 
 old_repr = torch.Tensor.__repr__
+
+
 def tensor_info(tensor):
     return repr(tensor.shape)[6:] + ' ' + repr(tensor.dtype)[6:] + '@' + str(tensor.device) + '\n' + old_repr(tensor)
+
+
 torch.Tensor.__repr__ = tensor_info
 
-class Node():
+
+class Node:
     def __init__(self,
                  name: str,
                  train_dataloader,
                  test_dataloader,
-                 # training_samples: torch.Tensor,
-                 # training_labels: torch.Tensor,
-                 # test_samples: torch.Tensor,
-                 # test_labels: torch.Tensor,
                  neighbours: List[str],
                  optimizer: torch.optim.Optimizer,
                  learning_rate: float,
-                 alpha: float,
                  training_epochs: int,
                  add_privacy: bool,
                  epsilon: float,
                  delta: float) -> None:
         self.name = name
-        # # get training samples and associated labels
-        # self.training_samples = training_samples
-        # self.training_labels = training_labels
-        # # get test samples and associated labels
-        # self.test_samples = test_samples
-        # self.test_labels = test_labels
         self.train_dataloader = train_dataloader
-        self.iter_loader = iter(train_dataloader)
+        self.iter_loader = iter(self.train_dataloader)
         self.test_dataloader = test_dataloader
-        # get the list of neighbours, this node can communicate with
+        # Get the list of neighbours; this node can communicate with them
         self.neighbours = neighbours
-        # initialize a list for storing the training losses
+        # Initialize a list for storing the losses and accuracies
         self.test_losses = []
         self.test_accuracies = []
         self.train_losses_temp = []
         self.train_losses = []
         self.train_accuracies_temp = []
         self.train_accuracies = []
-        # initialize the network
+        # Initialize the network
         self.network = Net()
-        # save learning rate and the given optimizer
+        # Save learning rate and the given optimizer
         self.learning_rate = learning_rate
         self.optimizer = optimizer(self.network.parameters(),
                                    lr=learning_rate)
-        # save parameter of neighbour influence
-        self.alpha = alpha
-        # a list for storing the estimates of neighbours
+        # A list for storing the weight estimates of neighbours
         self.shared_weights = []
         self.loss = None
         self.output = None
@@ -69,32 +61,29 @@ class Node():
         self.add_privacy = add_privacy
         self.stop_sharing = False
         if self.add_privacy:
-            # we need to change the batchnorm module to make it private
+            # We need to change the batchnorm module to enable using the privacy engine
             self.network = module_modification.convert_batchnorm_modules(self.network)
-            # TODO work out optimal parameters
             privacy_engine = PrivacyEngine(
                 self.network,
-                sample_rate=1/len(self.train_dataloader.dataset),
+                sample_rate=1 / len(self.train_dataloader.dataset),
                 epochs=self.training_epochs,
-                #alphas=[10, 100],
                 target_epsilon=self.target_epsilon,
                 target_delta=self.delta,
-                #noise_multiplier=1.3,
                 max_grad_norm=1.0,
             )
             privacy_engine.attach(self.optimizer)
 
-        # for saving send and received bytes
+        # For saving send and received bytes
         self.sent_bytes = 0
         self.received_bytes = 0
 
-        # for NN decide cpu or gpu
+        # For NN: decide to use cpu or gpu
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def __call__(self, batch):
 
         self.network.to(self.device)
-        # todo include shared estimates
+
         self.network.train()
 
         if batch < len(self.train_dataloader):
@@ -120,9 +109,8 @@ class Node():
                     new_weight = sum([e / len(elements) for e in elements])
                     elements[0].copy_(new_weight)
 
-        # after the calculations, we empty the shared estimates for the next step
+        # After the calculations, we empty the shared estimates for the next step
         self.shared_weights = []
-
 
     def receive_weights(self, weights, byte_size):
         self.received_bytes += byte_size
@@ -146,12 +134,12 @@ class Node():
         return self.loss.data[0]
 
     def calculate_accuracy(self, output, label):
-        # compute prediction and compare against training labels
+        # Compute prediction and compare against training labels
         errors = 0
         for row in range(output.size(0)):
             if torch.argmax(output[row]) != label[row]:
                 errors = errors + 1
-        # return proportion of errors
+        # Return proportion of errors
         return (output.size(0) - errors) / output.size(0)
 
     def reset_train_performance_(self):
@@ -176,6 +164,4 @@ class Node():
                 running_loss += F.nll_loss(output, test_labels).item()
                 accuracy += self.calculate_accuracy(output, labels)
 
-        return accuracy/len(self.test_dataloader), running_loss/len(self.test_dataloader)
-        # print(f"Test Loss: {test_loss:.4f}")
-        # print(f"Test Accuracy: {(nr_correct / self.test_samples.shape[0]) * 100}%")
+        return accuracy / len(self.test_dataloader), running_loss / len(self.test_dataloader)
