@@ -39,7 +39,7 @@ class Node():
         # self.test_samples = test_samples
         # self.test_labels = test_labels
         self.train_dataloader = train_dataloader
-        self.iter_loader = iter(train_dataloader)
+        self.iter_loader = iter(self.train_dataloader)
         self.test_dataloader = test_dataloader
         # get the list of neighbours, this node can communicate with
         self.neighbours = neighbours
