@@ -7,7 +7,7 @@ from data import load_mnist_data
 from node import Node
 
 
-class DecentralizedNetwork():
+class DecentralizedNetwork:
     graphs = {"FullyConnectedGraph": g.FullyConnectedGraph,
               "BinomialGraph": g.BinomialGraph,
               "RingOfCliques": g.RingOfCliques,
