@@ -2,8 +2,6 @@ from torch import nn
 from torch.nn import functional as F
 from prettytable import PrettyTable
 
-import torch.optim as optim
-
 
 class Net(nn.Module):
     def __init__(self):

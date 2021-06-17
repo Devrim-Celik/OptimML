@@ -2,7 +2,7 @@ from test_class import TestSuite
 from sklearn.model_selection import ParameterGrid
 
 # def run_test():
-parameters = {"graph_list": ["FullyConnectedGraph", "CycleGraph", "Torus2D", "RingOfCliques"],
+parameters = {"graph_list": ["CycleGraph", "Torus2D", "RingOfCliques"],
               "task_list": ["MNIST"],
               "nr_node_list": [4, 16, 32],
               "nr_classes_list": [3],
@@ -10,7 +10,7 @@ parameters = {"graph_list": ["FullyConnectedGraph", "CycleGraph", "Torus2D", "Ri
               "alpha_list": [0.5],
               "training_epochs": [50],
               "test_granularity": [1],
-              "add_privacy_list": [False, True],
+              "add_privacy_list": [True],
               "epsilon_list": [1.1],
               "delta_list": [1e-6],
               "subset": [False],
