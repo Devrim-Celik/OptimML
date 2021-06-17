@@ -1,13 +1,15 @@
 import abc
-import numpy as np
-import networkx as nx
-import matplotlib.pyplot as plt
 from typing import List
+
+import matplotlib.pyplot as plt
+import networkx as nx
+
 
 class Topology(abc.ABC):
     """
     Base class to create various network topologies.
     """
+
     def __init__(self):
         self.graph = self._create_graph()
 
@@ -72,16 +74,6 @@ class Topology(abc.ABC):
             adj_dict[node] = nb_list
         return adj_dict
 
-    # def __getitem__(self, node):
-    #     """
-    #     :param node: node id
-    #     :return: dict {neighbor node : connection strength}
-    #     """
-    #     graph_no_diag = self.graph - np.identity(self.n_nodes)
-    #     adj = graph_no_diag[node]
-    #     adj_index = np.nonzero(adj)[0]
-    #     return {k: 1 for k in adj_index}
-
 
 class FullyConnectedGraph(Topology):
     def __init__(self, nodes):
@@ -109,6 +101,7 @@ class RingOfCliques(Topology):
     """
     A ring of cliques graph is consisting of cliques, connected through single links. Each clique is a complete graph.
     """
+
     def __init__(self, num_cliques, clique_size=2):
         if num_cliques == 4:
             self.num_cliques = 2
@@ -133,6 +126,7 @@ class CirculantGraph(Topology):
     """
     Generates the circulant graph Ci_n(x_1,x_2,...,x_m) with n vertices.
     """
+
     def __init__(self, n, offset: List[int]):
         """
         Initialise the graph with n (int), offset (list)
@@ -155,6 +149,7 @@ class CycleGraph(Topology):
 
     def _create_graph(self):
         return nx.cycle_graph(self.n)
+
 
 class Torus2D(Topology):
     def __init__(self, m, n=2):
@@ -188,21 +183,3 @@ class Torus2D(Topology):
 
             adj_dict[self.tuple_to_1Dindex(node)] = nb_list
         return adj_dict
-
-if __name__ == '__main__':
-    graph = CycleGraph(10)
-    a = graph.n_nodes
-    b = graph.adj()
-    c = graph.visualize_graph()
-    f = graph.plot_degree_distribution()
-    c
-
-    # graph = nx.cycle_graph(10)
-    # graph2 = nx.ring_of_cliques(10, 4)
-    # graph3 = nx.binomial_graph(10, .2, seed=1)
-    # graph4 = nx.circulant_graph(20, range(1, 10))
-    # adj1 = build_adj_dict(graph)
-    # adj2 = build_adj_dict(graph2)
-    # adj3 = build_adj_dict(graph3)
-    # adj4 = build_adj_dict(graph4)
-    # visualize_graph(graph4)

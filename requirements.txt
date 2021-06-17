@@ -1,0 +1,8 @@
+numpy==1.19.5
+torchvision==0.9.1
+matplotlib==3.4.1
+opacus==0.13.0
+sklearn==0.0
+scikit-learn==0.24.2
+networkx==2.5.1
+prettytable==2.1.0

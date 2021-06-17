@@ -1,16 +1,15 @@
-from test_class import TestSuite
 from sklearn.model_selection import ParameterGrid
 
-# def run_test():
-parameters = {"graph_list": ["CycleGraph", "Torus2D", "RingOfCliques"],
+from test_class import TestSuite
+
+parameters = {"graph_list": ["FullyConnectedGraph", "CycleGraph", "Torus2D", "RingOfCliques"],
               "task_list": ["MNIST"],
               "nr_node_list": [4, 16, 32],
               "nr_classes_list": [3],
-              "lr_list": [0.0001],
-              "alpha_list": [0.5],
+              "lr_list": [0.01],
               "training_epochs": [50],
               "test_granularity": [1],
-              "add_privacy_list": [True],
+              "add_privacy_list": [False, True],
               "epsilon_list": [1.1],
               "delta_list": [1e-6],
               "subset": [False],
@@ -26,7 +25,6 @@ ts = TestSuite(
     nr_node_list=[val['nr_node_list'] for val in grid],
     nr_classes_list=[val['nr_classes_list'] for val in grid],
     lr_list=[val['lr_list'] for val in grid],
-    alpha_list=[val['alpha_list'] for val in grid],
     training_epochs=[val['training_epochs'] for val in grid],
     test_granularity=[val['test_granularity'] for val in grid],
     add_privacy_list=[val['add_privacy_list'] for val in grid],
@@ -35,10 +33,7 @@ ts = TestSuite(
     subset=[val['subset'] for val in grid],
     batch_size=[val['batch_size'] for val in grid]
 )
-# run the tests
-ts.run()
-# save results
-ts.save_results("./results/")
 
-# if __name__=="__main__":
-#    run_test()
+# Run the experiment with the chosen setup and save the results
+ts.run()
+ts.save_results("./results/")

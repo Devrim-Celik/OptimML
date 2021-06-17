@@ -1,64 +1,61 @@
-import graph as g
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
+
+import graph as g
 from data import load_mnist_data
 from node import Node
-import numpy as np
-import matplotlib.pyplot as plt
 
-class DecentralizedNetwork():
+
+class DecentralizedNetwork:
     graphs = {"FullyConnectedGraph": g.FullyConnectedGraph,
               "BinomialGraph": g.BinomialGraph,
               "RingOfCliques": g.RingOfCliques,
               "CirculantGraph": g.CirculantGraph,
               "CycleGraph": g.CycleGraph,
               "Torus2D": g.Torus2D
-    }
+              }
 
     optimizers = {"Adam": torch.optim.Adam}
-
     tasks = {"MNIST": load_mnist_data}
 
     def __init__(
-        self,
-        nr_nodes: int,
-        nr_classes: int,
-        allocation: str,
-        graph_type: str,
-        alpha: float,
-        lr: float,
-        training_epochs: int,
-        optimizer_type: str, # not used
-        task_type: str, # not used
-        add_privacy: bool,
-        epsilon: float,
-        delta: float,
-        subset: bool,
-        batch_size: int,
-        test_granularity=1,
-
+            self,
+            nr_nodes: int,
+            nr_classes: int,
+            allocation: str,
+            graph_type: str,
+            lr: float,
+            training_epochs: int,
+            optimizer_type: str,
+            task_type: str,
+            add_privacy: bool,
+            epsilon: float,
+            delta: float,
+            subset: bool,
+            batch_size: int,
+            test_granularity=1,
     ):
-        # save the type of graph to be used
+        # Save the type of graph to be used
         self.graph_type = graph_type
-        # construct the graph
-        # TODO what happens if graph takes more than 1 argument?
+        # Construct the graph
         self.graph = DecentralizedNetwork.graphs[graph_type](nr_nodes)
-        # save the number of nodes and classes to assign to each node in the graph
+        # Save the number of nodes and classes to assign to each node in the graph
         self.nr_nodes = self.graph.n_nodes
         self.nr_classes = nr_classes
         self.allocation = allocation
-        # get the optimizer
+        # Get the optimizer
         self.node_optimizer = [DecentralizedNetwork.optimizers[optimizer_type] for _ in range(self.nr_nodes)]
-        # save parameters
+        # Save learning rate
         self.node_lr = lr
-        self.node_alpha = alpha
 
-        # set up differential privacy
+        # Set up differential privacy
         self.add_privacy = add_privacy
         self.training_epochs = training_epochs
         self.epsilon = epsilon
         self.delta = delta
 
-        # initialize data loader
+        # Initialize the data loader
         self.task_type = task_type
         self.data_loader = DecentralizedNetwork.tasks[task_type]
         self.subset = subset
@@ -66,7 +63,7 @@ class DecentralizedNetwork():
         self.train_dataloader_list = None
         self.test_dataloader_list = None
 
-        # for storing the test and training accuracies/loss
+        # Create lists for storing the test and training accuracies and losses
         self.test_accuracies_mean = []
         self.test_losses_mean = []
         self.test_accuracies_nodes = []
@@ -76,30 +73,23 @@ class DecentralizedNetwork():
         self.test_granularity = test_granularity
         self.epoch_list = []
 
-        # initialize nodes
         self.initialize_nodes()
 
     def initialize_nodes(self):
-        # list for storing all agents
+        # List for storing all agents
         self.nodes = []
-        # load the data
-        # node_tr_data, node_te_data, node_tr_labels, node_te_labels = self.data_loader(self.nr_nodes, self.nr_classes,
-        #                                                                                self.allocation, self.subset)
+        # Load the data
         self.train_dataloader_list, self.test_dataloader_list = self.data_loader(self.nr_nodes, self.nr_classes,
-                                                             self.allocation, self.subset, self.batch_size)
+                                                                                 self.allocation, self.subset,
+                                                                                 self.batch_size)
         for indx, (indx_, neighbours) in enumerate(self.graph.adj().items()):
             self.nodes.append(Node(
                 str(indx),
                 self.train_dataloader_list[indx],
                 self.test_dataloader_list[indx],
-                # node_tr_data[indx],
-                # node_tr_labels[indx],
-                # node_te_data[indx],
-                # node_te_labels[indx],
                 neighbours,
                 self.node_optimizer[indx],
                 self.node_lr,
-                self.node_alpha,
                 self.training_epochs,
                 self.add_privacy,
                 self.epsilon,
@@ -114,12 +104,12 @@ class DecentralizedNetwork():
                 for n in self.nodes:
                     n(batch)
 
-                # share weights between the nodes
+                # Share weights between the nodes
                 self.share_weights()
 
             self.reset_sharing()
 
-            # print current performance
+            # Print current performance
             if e % self.test_granularity == 0:
                 self.store_performance(e)
                 self.training_print(e)
@@ -147,7 +137,8 @@ class DecentralizedNetwork():
         self.epoch_list.append(e)
 
     def training_print(self, epoch):
-        print(f"[{epoch:5d}] Validation Data: Accuracy {self.test_accuracies_mean[-1]:.3f} | Loss {self.test_losses_mean[-1]:.3f}")
+        print(
+            f"[{epoch:5d}] Validation Data: Accuracy {self.test_accuracies_mean[-1]:.3f} | Loss {self.test_losses_mean[-1]:.3f}")
 
     def share_weights(self):
         for sender_indx, sender in enumerate(self.nodes):
@@ -157,7 +148,8 @@ class DecentralizedNetwork():
                     receiver.receive_weights(*sender.share_weights())
 
     def get_bytes(self):
-        return [{f"sent_bytes_{n_indx+1}":node.sent_bytes, f"received_bytes_{n_indx+1}":node.received_bytes} for n_indx, node in enumerate(self.nodes)]
+        return [{f"sent_bytes_{n_indx + 1}": node.sent_bytes, f"received_bytes_{n_indx + 1}": node.received_bytes} for
+                n_indx, node in enumerate(self.nodes)]
 
     def plot_training(self):
         plt.figure("MP")
@@ -171,6 +163,5 @@ class DecentralizedNetwork():
         for n_indx in range(self.nr_nodes):
             plt.plot([x[n_indx] for x in self.test_accuracies_nodes], label=f"Node{n_indx}")
         plt.legend()
-
 
         plt.show()
