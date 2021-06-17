@@ -10,6 +10,13 @@ class LoadData:
                  dataset: str,
                  train: bool,
                  subset: bool):
+        """
+        Class handles loading data for many separate nodes.
+
+        :param dataset:             Which dataset to load
+        :param train:               boolean to load train or test dataset
+        :param subset:              Only load a fraction of data. Hardcoded to 30%.
+        """
 
         PERCENT = .3
 
@@ -40,9 +47,25 @@ class LoadData:
         return self.samples, self.labels
 
     def partition(self, to_partition, indices, nr_agents):
+        """
+        Separate data into number of agents
+
+        :param to_partition:        data to partition
+        :param indices:             indices by which to partition
+        :param nr_agents:           number of partitions to create
+        :return:                    list of partitioned data
+        """
         return [to_partition[indices[i]:indices[i + 1]] for i in range(nr_agents)]
 
     def split(self, how, nr_agents, **kwargs):
+        """
+        Different ways to split data between nodes.
+
+        :param how:                 ['random', 'uniform', 'non_iid_uniform', 'non_iid_random']
+        :param nr_agents:           number of agents to split data between
+        :param kwargs:              additional class_per_node argument for non_iid case
+        :return:                    data partitioned according to :param how.
+        """
         if how == 'random':
             self.random_split(nr_agents)
         elif how == 'uniform':
@@ -55,6 +78,11 @@ class LoadData:
         return self.get_data()
 
     def random_split(self, nr_agents):
+        """
+        Give each Node random splits of data. Nodes will have different amounts of data.
+
+        :param nr_agents:
+        """
         np.random.seed(self.random_seed)
         # Get random indices
         indices = sorted(np.random.randint(0, high=self.samples.shape[0], size=nr_agents - 1).tolist())
@@ -65,12 +93,24 @@ class LoadData:
         self.labels = self.partition(self.labels, indices, nr_agents)
 
     def uniform_split(self, nr_agents):
+        """
+        Give each Node uniform splits of data. Nodes will have same amounts of data.
+
+        :param nr_agents:
+        """
         indices = np.linspace(start=0, stop=self.samples.shape[0], num=nr_agents + 1, dtype=int).tolist()
 
         self.samples = self.partition(self.samples, indices, nr_agents)
         self.labels = self.partition(self.labels, indices, nr_agents)
 
     def non_iid_split(self, nr_agents, class_per_node, random):
+        """
+        Give nodes only certain number of class labels as data.
+
+        :param nr_agents:
+        :param class_per_node:      number of class labels per node
+        :param random:              boolean denoting random or uniform split of data
+        """
         unique = list(set(self.labels.tolist()))
         len_unique = len(unique)
 
@@ -86,7 +126,7 @@ class LoadData:
         for i in range(len(self.labels)):
             sample_list[self.labels[i]].append(self.samples[i])
 
-        # By class creates uniform indices splits to partition data to agents evenly
+        # By class creates uniform or random indices splits to partition data to agents evenly
         class_count = np.bincount(agent_class_master.ravel())
         class_indices = {}
         for i in range(len(class_count)):
@@ -132,8 +172,8 @@ class CustomDataset(Dataset):
 
     def __init__(self, inputs, targets):
         """
-        :param inputs:          Images 2x14x14
-        :param targets:         class label
+        :param inputs:              Images 2x14x14
+        :param targets:             Class Label
         """
         super(Dataset, self).__init__()
         self.data = []
@@ -148,6 +188,16 @@ class CustomDataset(Dataset):
 
 
 def load_mnist_data(nr_nodes, nr_classes, allocation, subset, batch_size):
+    """
+    Uses LoadData class to partition prepare data. Puts data into dataloader objects to make use of batching and shuffling.
+
+    :param nr_nodes:
+    :param nr_classes:              if non_iid data, number class labels per node
+    :param allocation:              ['random', 'uniform', 'non_iid_uniform', 'non_iid_random'] how to split data
+    :param subset:                  subset of data
+    :param batch_size:
+    :return:
+    """
     train_loader_list = []
     test_loader_list = []
 

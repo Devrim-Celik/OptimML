@@ -95,7 +95,6 @@ class DecentralizedNetwork:
                 self.epsilon,
                 self.delta
             ))
-            print(f'Node_{indx} - Train Num: {len(self.train_dataloader_list[indx].dataset)} - Neighbors: {neighbours}')
 
     def train(self):
         for e in range(self.training_epochs):
@@ -116,7 +115,9 @@ class DecentralizedNetwork:
 
     def reset_sharing(self):
         for a in self.nodes:
+            # renew iterable object each epoch
             a.iter_loader = iter(a.train_dataloader)
+            # turn off stop_sharing flag each epoch
             a.stop_sharing = False
 
     def store_performance(self, e):
@@ -144,7 +145,6 @@ class DecentralizedNetwork:
         for sender_indx, sender in enumerate(self.nodes):
             for receiver_indx, receiver in enumerate(self.nodes):
                 if receiver_indx in sender.neighbours:
-                    a, b = sender.share_weights()
                     receiver.receive_weights(*sender.share_weights())
 
     def get_bytes(self):

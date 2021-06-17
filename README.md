@@ -26,7 +26,10 @@ pip3 install -r requirements.txt
 
 ## Running our Code
 
- - [pipeline.ipynb](pipeline.ipynb)
+Run the run.py file in the notebook to start running scenarios. To change which tests are run edit the parameter dictionary.
+See next section for an explanation of parameters. The default parameters we have left correspond to ...
+
+ - [run.py](run.py)
 
 ## Run Parameters Explained
 For running a test you specify all the parameters in lists. We then take all the permutations of these parameters and run these sequentially. 

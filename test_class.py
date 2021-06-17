@@ -11,6 +11,7 @@ class TestSuite:
             task_list,
             nr_node_list,
             nr_classes_list,
+            data_distribution_list,
             lr_list,
             training_epochs,
             test_granularity,
@@ -24,6 +25,7 @@ class TestSuite:
         self.task_list = task_list
         self.nr_node_list = nr_node_list
         self.nr_classes_list = nr_classes_list
+        self.data_distribution_list = data_distribution_list
         self.lr_list = lr_list
         self.training_epochs = training_epochs
         self.test_granularity = test_granularity
@@ -36,11 +38,12 @@ class TestSuite:
     def run(self):
         self.all_tests = []
         for test_indx in range(len(self.graph_list)):
+            self.print_header(test_indx)
             result_dic = {}
             dn = DecentralizedNetwork(
                 self.nr_node_list[test_indx],
                 self.nr_classes_list[test_indx],
-                'random',
+                self.data_distribution_list[test_indx],
                 self.graph_list[test_indx],
                 self.lr_list[test_indx],
                 self.training_epochs[test_indx],
@@ -90,3 +93,9 @@ class TestSuite:
         time_str = datetime.now().strftime("%m_%d_%Y-%H_%M_%S")
         with open(f"{path}TestSuite-{time_str}.pkl", 'wb') as f:
             pickle.dump(self.all_tests, f, pickle.HIGHEST_PROTOCOL)
+
+    def print_header(self, index):
+        print(f"====== Scenario {index} ======")
+        print(f"GRAPH: {self.graph_list[index]} | NUM NODES: {self.nr_node_list[index]} | DATA DIST: {self.data_distribution_list[index]}")
+        print(f"DATA: {self.task_list[index]} | LR: {self.lr_list[index]} | PRIVACY: {self.add_privacy_list[index]} | BATCH: {self.batch_size[index]}")
+        print("\n")

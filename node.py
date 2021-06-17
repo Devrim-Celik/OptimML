@@ -9,15 +9,6 @@ from torch.nn import functional as F
 
 from networks import Net
 
-old_repr = torch.Tensor.__repr__
-
-
-def tensor_info(tensor):
-    return repr(tensor.shape)[6:] + ' ' + repr(tensor.dtype)[6:] + '@' + str(tensor.device) + '\n' + old_repr(tensor)
-
-
-torch.Tensor.__repr__ = tensor_info
-
 
 class Node:
     def __init__(self,
@@ -61,7 +52,7 @@ class Node:
         self.add_privacy = add_privacy
         self.stop_sharing = False
         if self.add_privacy:
-            # We need to change the batchnorm module to enable using the privacy engine
+            # Change the batchnorm module to enable using the privacy engine
             self.network = module_modification.convert_batchnorm_modules(self.network)
             privacy_engine = PrivacyEngine(
                 self.network,
@@ -77,15 +68,11 @@ class Node:
         self.sent_bytes = 0
         self.received_bytes = 0
 
-        # For NN: decide to use cpu or gpu
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
     def __call__(self, batch):
-
-        self.network.to(self.device)
 
         self.network.train()
 
+        # Only performs update if there are batches left to run through
         if batch < len(self.train_dataloader):
             sample, label = next(self.iter_loader)
 
@@ -121,6 +108,12 @@ class Node:
         return self.network.parameters()
 
     def share_weights(self):
+        """
+        Share nodes weights. Only shares weights if the node is still updating its weights. Controlled by the
+        self.stop_sharing flag.
+
+        :return:        weights to share, size of weights in bytes
+        """
         if not self.stop_sharing:
             shared_weights = self._weights()
             shared_weights_size = sys.getsizeof(shared_weights)
@@ -157,9 +150,9 @@ class Node:
         with torch.no_grad():
             for samples, labels in self.test_dataloader:
                 # adjust shape of test samples
-                test_samples = samples.unsqueeze(1).type(torch.FloatTensor).to(self.device)
+                test_samples = samples.unsqueeze(1).type(torch.FloatTensor)
                 output = self.network(test_samples)
-                test_labels = labels.to(self.device)
+                test_labels = labels
 
                 running_loss += F.nll_loss(output, test_labels).item()
                 accuracy += self.calculate_accuracy(output, labels)

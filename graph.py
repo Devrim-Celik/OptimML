@@ -101,7 +101,6 @@ class RingOfCliques(Topology):
     """
     A ring of cliques graph is consisting of cliques, connected through single links. Each clique is a complete graph.
     """
-
     def __init__(self, num_cliques, clique_size=2):
         if num_cliques == 4:
             self.num_cliques = 2
@@ -173,7 +172,8 @@ class Torus2D(Topology):
     def adj(self):
         """
         Get concise form of nodes and their neighbors.
-        :return: dict {node : list of connection to node}
+
+        :return:    dict {node : list of connection to node}
         """
         adj_dict = {}
         for node in self.graph.nodes():

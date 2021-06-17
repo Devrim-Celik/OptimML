@@ -1,12 +1,17 @@
 from sklearn.model_selection import ParameterGrid
+import warnings
 
 from test_class import TestSuite
 
+warnings.filterwarnings("ignore")
+
+# Edit these parameters to change the combination
 parameters = {"graph_list": ["FullyConnectedGraph", "CycleGraph", "Torus2D", "RingOfCliques"],
               "task_list": ["MNIST"],
               "nr_node_list": [4, 16, 32],
               "nr_classes_list": [3],
-              "lr_list": [0.001],
+              "data_distribution": ["non_iid_random"],
+              "lr_list": [0.0001],
               "training_epochs": [50],
               "test_granularity": [1],
               "add_privacy_list": [False, True],
@@ -15,6 +20,8 @@ parameters = {"graph_list": ["FullyConnectedGraph", "CycleGraph", "Torus2D", "Ri
               "subset": [False],
               "batch_size": [128]
               }
+
+# Create permutations of parameters
 grid = []
 for p in ParameterGrid(parameters):
     grid.append(p)
@@ -24,6 +31,7 @@ ts = TestSuite(
     task_list=[val['task_list'] for val in grid],
     nr_node_list=[val['nr_node_list'] for val in grid],
     nr_classes_list=[val['nr_classes_list'] for val in grid],
+    data_distribution_list=[val['data_distribution'] for val in grid],
     lr_list=[val['lr_list'] for val in grid],
     training_epochs=[val['training_epochs'] for val in grid],
     test_granularity=[val['test_granularity'] for val in grid],
