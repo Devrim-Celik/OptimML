@@ -1,8 +1,10 @@
 import abc
 from typing import List
+import scipy
 
 import matplotlib.pyplot as plt
 import networkx as nx
+import numpy as np
 
 
 class Topology(abc.ABC):
@@ -73,6 +75,17 @@ class Topology(abc.ABC):
                 nb_list.append(nb)
             adj_dict[node] = nb_list
         return adj_dict
+
+    def adjacency_matrix(self):
+        return nx.linalg.adjacency_matrix(self.graph)
+
+    def spectral_gap(self):
+        adj_matrix = scipy.sparse.csr_matrix.toarray(self.adjacency_matrix())
+        D = np.sqrt(np.linalg.inv(np.diag(adj_matrix.sum(axis=0))))
+        stochastic_matrix = D @ adj_matrix @ D
+        val, vect = np.linalg.eigh(stochastic_matrix)
+        sorted_eig = sorted(val, reverse=True)
+        return 1 - np.abs(sorted_eig[1])
 
 
 class FullyConnectedGraph(Topology):
