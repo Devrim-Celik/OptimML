@@ -1,0 +1,39 @@
+\begin{tabular}{llllrr}
+\toprule
+                        &        &                Graph & Mean\_epochs &  Mean\_train\_loss &  Mean\_test\_accuracy \\
+Config & Learning\_rate &                      &             &                  &                     \\
+\midrule
+IID Random  & 0.0001 &  FullyConnectedGraph &          13 &           0.0595 &              0.9779 \\
+                        & 0.0001 &           CycleGraph &          38 &           0.0621 &              0.9837 \\
+                        & 0.0001 &              Torus2D &          15 &           0.0617 &              0.9810 \\
+                        & 0.0001 &        RingOfCliques &           8 &           0.0830 &              0.9712 \\
+IID Random Private & 0.0001 &  FullyConnectedGraph &         >50 &           0.1457 &              0.9537 \\
+                        & 0.0001 &           CycleGraph &          36 &           0.1803 &              0.9361 \\
+                        & 0.0001 &              Torus2D &         >50 &           0.1453 &              0.9469 \\
+                        & 0.0001 &        RingOfCliques &          13 &           0.2455 &              0.9001 \\
+IID Uniform  & 0.0100 &  FullyConnectedGraph &          23 &           0.0002 &              0.9864 \\
+                        & 0.0100 &           CycleGraph &          26 &           0.0013 &              0.9848 \\
+                        & 0.0100 &              Torus2D &           7 &           0.0143 &              0.9845 \\
+                        & 0.0100 &        RingOfCliques &           7 &           0.0148 &              0.9844 \\
+IID Uniform Private & 0.0100 &  FullyConnectedGraph &          15 &           0.1520 &              0.9509 \\
+                        & 0.0100 &           CycleGraph &          19 &           0.1531 &              0.9579 \\
+                        & 0.0100 &              Torus2D &           9 &           0.1403 &              0.9572 \\
+                        & 0.0100 &        RingOfCliques &          30 &           0.1557 &              0.9556 \\
+Non-IID Random  & 0.0001 &  FullyConnectedGraph &         >50 &           0.0730 &              0.9225 \\
+                        & 0.0001 &           CycleGraph &          20 &           0.1564 &              0.8665 \\
+                        & 0.0001 &              Torus2D &          16 &           0.1390 &              0.5032 \\
+                        & 0.0001 &        RingOfCliques &          32 &           0.0622 &              0.9197 \\
+Non-IID Random Private & 0.0001 &  FullyConnectedGraph &          16 &           1.4456 &              0.6528 \\
+                        & 0.0001 &           CycleGraph &         >50 &           0.6959 &              0.7704 \\
+                        & 0.0001 &              Torus2D &           9 &           1.2229 &              0.6922 \\
+                        & 0.0001 &        RingOfCliques &         >50 &           0.3553 &              0.8464 \\
+Non-IID Uniform  & 0.0001 &  FullyConnectedGraph &          29 &           0.0901 &              0.7229 \\
+                        & 0.0001 &           CycleGraph &          27 &           0.2853 &              0.9257 \\
+                        & 0.0001 &              Torus2D &          36 &           0.2206 &              0.9330 \\
+                        & 0.0001 &        RingOfCliques &         >50 &           0.1400 &              0.9443 \\
+Non-IID Uniform Private & 0.0001 &  FullyConnectedGraph &         >50 &           0.4352 &              0.8417 \\
+                        & 0.0001 &           CycleGraph &           7 &           1.7485 &              0.6638 \\
+                        & 0.0001 &              Torus2D &         >50 &           0.4450 &              0.8413 \\
+                        & 0.0001 &        RingOfCliques &         >50 &           0.7288 &              0.8308 \\
+\bottomrule
+\end{tabular}
