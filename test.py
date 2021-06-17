@@ -6,7 +6,7 @@ parameters = {"graph_list": ["FullyConnectedGraph", "CycleGraph", "Torus2D", "Ri
               "task_list": ["MNIST"],
               "nr_node_list": [4, 16, 32],
               "nr_classes_list": [3],
-              "lr_list": [0.01],
+              "lr_list": [0.001],
               "training_epochs": [50],
               "test_granularity": [1],
               "add_privacy_list": [False, True],
