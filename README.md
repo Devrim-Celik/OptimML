@@ -1,4 +1,4 @@
-Decentralized Machine Learning
+Decentralized Machine Learning: Experiments on Topology and Privacy
 ======================================================================
 
 This repository provides a framework for building network topologies and testing decentralized machine learning models.
