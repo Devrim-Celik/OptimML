@@ -5,7 +5,7 @@ from test_class import TestSuite
 
 warnings.filterwarnings("ignore")
 
-# Edit these parameters to change the combination
+# Edit these parameters to change the combinations
 parameters = {"graph_list": ["FullyConnectedGraph", "CycleGraph", "Torus2D", "RingOfCliques"],
               "task_list": ["MNIST"],
               "nr_node_list": [4, 16, 32],

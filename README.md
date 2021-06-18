@@ -29,7 +29,7 @@ pip3 install -r requirements.txt
 ## Running our Code
 
 Run the run.py file in the notebook to start running scenarios. To change which tests are run edit the parameter dictionary.
-See next section for an explanation of parameters. The default parameters we have left correspond to ...
+See next section for an explanation of parameters. The existing parameters correspond to a run of 24 scenarios.
 
  - [run.py](run.py)
  
