@@ -3,7 +3,7 @@ Decentralized Machine Learning: Experiments on Topology and Privacy
 
 This repository provides a framework for building network topologies and testing decentralized machine learning models.
 
-Accompanying report: REPORT LINK
+[Accompanying Report](https://github.com/Devrim-Celik/OptimML/tree/main/report/OptML_Project_Report.pdf)
 
 ## Software dependencies
 
@@ -32,7 +32,7 @@ Run the run.py file in the notebook to start running scenarios. To change which 
 See next section for an explanation of parameters. The existing parameters correspond to a run of 24 scenarios.
 
  - [run.py](run.py)
- 
+
 The output of each scenario will be saved in results with the timestamp that it finished running.
 
 ## Run Parameters Explained
@@ -55,7 +55,7 @@ For running a test you specify all the parameters in lists. We then take all the
 
 ## Plots and Results from Paper
 
-Run these notebooks to generate the results from our paper. 
+Run these notebooks to generate the results from our paper.
 
 - [plots.ipynb](plots.ipynb)
 - [tables.ipynb](tables.ipynb)
