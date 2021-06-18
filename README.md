@@ -1,4 +1,4 @@
-Decentralized Machine Learning
+Decentralized Machine Learning: Experiments on Topology and Privacy
 ======================================================================
 
 This repository provides a framework for building network topologies and testing decentralized machine learning models.
@@ -17,6 +17,8 @@ The code contained in this repository was tested on the following configuration 
 - scikit-learn==0.24.2
 - networkx==2.5.1
 - prettytable==2.1.0
+- torch==1.8.1
+- jupyter==1.0.0
 
 ## Installation Guide
 
@@ -27,9 +29,11 @@ pip3 install -r requirements.txt
 ## Running our Code
 
 Run the run.py file in the notebook to start running scenarios. To change which tests are run edit the parameter dictionary.
-See next section for an explanation of parameters. The default parameters we have left correspond to ...
+See next section for an explanation of parameters. The existing parameters correspond to a run of 24 scenarios.
 
  - [run.py](run.py)
+ 
+The output of each scenario will be saved in results with the timestamp that it finished running.
 
 ## Run Parameters Explained
 For running a test you specify all the parameters in lists. We then take all the permutations of these parameters and run these sequentially.
@@ -51,7 +55,11 @@ For running a test you specify all the parameters in lists. We then take all the
 
 ## Plots and Results from Paper
 
+Run these notebooks to generate the results from our paper. 
+
 - [plots.ipynb](plots.ipynb)
+- [tables.ipynb](tables.ipynb)
+
 
 ## File Structure
 Here is the file structure of the project:
@@ -75,7 +83,9 @@ Project
 |-- node.py
 |-- plots.ipynb
 |-- README.md
+|-- requirements.txt
 |-- run.py
+|-- tables.ipynb
 |-- test_class.py
 
 ```
@@ -91,6 +101,7 @@ Project
 * `node.py`: classes for nodes; each one represents one agent in the decentralized network
 * `plots.ipynb`: for creating the plots
 * `run.py`: for executing multiple runs
+* `tables.ipynb`: for creating tables
 * `test_class.py`: class for creating multiple test setups and saving the results
 
 
